@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내 채팅 목록 - 오늘득템</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #fafafa;
+            color: #333;
+        }
+        
+        /* 컨테이너 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 7.5rem 20px 2rem;
+        }
+        
+        /* 페이지 타이틀 */
+        .page-title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 2rem;
+        }
+        
+        /* 채팅 목록 컨테이너 */
+        .chat-container {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        /* 채팅 목록 */
+        .chat-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .chat-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        
+        .chat-item:hover {
+            border-color: #3a5a40;
+            background: #f8f9fa;
+        }
+        
+        .chat-item.unread {
+            background: #e8f5e9;
+            border-color: #3a5a40;
+        }
+        
+        /* 프로필 사진 */
+        .chat-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            overflow: hidden;
+            background: linear-gradient(135deg, #e4f7dd 0%, #E4F9DF 100%);
+        }
+        
+        .chat-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .chat-avatar-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #3a5a40;
+            font-weight: bold;
+        }
+        
+        /* 채팅 정보 */
+        .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .chat-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .chat-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #333;
+        }
+        
+        /* 판매중/구매중 태그 */
+        .chat-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .chat-tag.selling {
+            background: #d17a3a;
+            color: white;
+        }
+        
+        .chat-tag.buying {
+            background: #3a5a40;
+            color: white;
+        }
+        
+        .chat-time {
+            color: #999;
+            font-size: 0.85rem;
+            margin-left: auto;
+        }
+        
+        .chat-product {
+            color: #3a5a40;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .chat-message {
+            color: #666;
+            font-size: 0.95rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        /* 오른쪽 영역 (상품 이미지 + 배지) */
+        .chat-right {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+        
+        /* 상품 이미지 */
+        .chat-product-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .chat-product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .chat-product-image-placeholder {
+            font-size: 1.5rem;
+            color: #ccc;
+        }
+        
+        /* 안읽은 메시지 배지 */
+        .chat-badge {
+            background: #d17a3a;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            min-width: 20px;
+            height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 빈 상태 */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #999;
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-state h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+        
+        .empty-state p {
+            font-size: 1rem;
+            color: #999;
+        }
+        
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 6rem 1rem 1rem;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .chat-container {
+                padding: 1rem;
+            }
+            
+            .chat-item {
+                padding: 0.75rem;
+            }
+            
+            .chat-avatar {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .chat-name {
+                font-size: 1rem;
+            }
+            
+            .chat-product-image {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .chat-tag {
+                font-size: 0.7rem;
+                padding: 2px 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <div th:replace="~{layouts/header.html}"></div>
+    
+    <div class="container">
+        <h1 class="page-title">💬 내 채팅 목록</h1>
+        
+        <div class="chat-container">
+            <!-- 채팅방이 없을 때 -->
+            <div th:if="${chatRooms == null || chatRooms.isEmpty()}" class="empty-state">
+                <div class="empty-state-icon">💬</div>
+                <h3>아직 채팅 내역이 없습니다</h3>
+                <p>상품 페이지에서 판매자와 대화를 시작해보세요!</p>
+            </div>
+            
+            <!-- 채팅방 목록 -->
+            <div th:if="${chatRooms != null && !chatRooms.isEmpty()}" class="chat-list">
+                <div th:each="room : ${chatRooms}" 
+                     class="chat-item"
+                     th:classappend="${room.unreadCount > 0} ? 'unread' : ''"
+                     th:data-room-id="${room.roomId}"
+                     onclick="goToChatRoom(this)">
+                    
+                    <!-- 프로필 사진 -->
+                    <div class="chat-avatar">
+                        <img th:if="${room.partnerProfileImage != null && !room.partnerProfileImage.isEmpty()}" 
+                             th:src="${room.partnerProfileImage}" 
+                             alt="프로필">
+                        <div th:if="${room.partnerProfileImage == null || room.partnerProfileImage.isEmpty()}" 
+                             class="chat-avatar-placeholder"
+                             th:text="${room.partnerName != null ? #strings.substring(room.partnerName, 0, 1) : '👤'}">
+                        </div>
+                    </div>
+                    
+                    <!-- 채팅 정보 -->
+                    <div class="chat-info">
+                        <div class="chat-header">
+                            <span class="chat-name" th:text="${room.partnerName ?: room.partnerId}">상대방</span>
+                            <span class="chat-tag" 
+                                  th:classappend="${room.tradeStatus == 'COMPLETED' ? 'completed' : (room.tradeStatus == 'CANCELLED' ? 'completed' : (room.isSeller ? 'selling' : 'buying'))}"
+                                  th:text="${room.tradeStatus == 'COMPLETED' ? '거래완료' : (room.tradeStatus == 'CANCELLED' ? '거래취소' : (room.isSeller ? '판매중' : '구매중'))}">
+                                판매중
+                            </span>
+                            <span class="chat-time" 
+                                  th:text="${room.lastMessageAt != null ? #temporals.format(room.lastMessageAt, 'MM/dd HH:mm') : ''}">
+                                시간
+                            </span>
+                        </div>
+                        <div class="chat-product" 
+                             th:if="${room.postTitle != null && !room.postTitle.isEmpty()}"
+                             th:text="${room.postTitle}">
+                            상품명
+                        </div>
+                        <div class="chat-message" 
+                             th:text="${room.lastMessage != null && !room.lastMessage.isEmpty() ? room.lastMessage : '메시지를 시작해보세요'}">
+                            마지막 메시지
+                        </div>
+                    </div>
+                    
+                    <!-- 오른쪽: 상품 이미지 + 배지 -->
+                    <div class="chat-right">
+                        <!-- 상품 이미지 -->
+                        <div class="chat-product-image">
+                            <img th:if="${room.postImage != null && !room.postImage.isEmpty()}"
+                                 th:src="${room.postImage}" 
+                                 alt="상품">
+                            <div th:if="${room.postImage == null || room.postImage.isEmpty()}"
+                                 class="chat-product-image-placeholder">
+                                📦
+                            </div>
+                        </div>
+                        
+                        <!-- 안읽은 메시지 배지 -->
+                        <span th:if="${room.unreadCount > 0}" 
+                              class="chat-badge" 
+                              th:text="${room.unreadCount}">
+                            1
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 푸터 -->
+    <div th:replace="~{layouts/footer.html}"></div>
+    
+    <script>
+        // 채팅방으로 이동
+        function goToChatRoom(element) {
+            const roomId = element.getAttribute('data-room-id');
+            if (roomId) {
+                location.href = '/chat/room?roomId=' + roomId;
+            }
+        }
+    </script>
+</body>
+</html>

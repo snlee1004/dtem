@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>header - 오늘득템</title>
+<style>
+/* ===== 헤더 ===== */
+header {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	z-index: 1000;
+	background: linear-gradient(135deg, #3a5a40 0%, #2a3c34 100%);
+	color: white;
+	height: 100px;
+	box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+}
+
+.header-container {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 0 5px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	height: 100%;
+}
+
+/* ===== 로고 ===== */
+.logo-area {
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+	transition: transform 0.3s ease;
+}
+.logo-area:hover {
+	transform: translateY(-2px);
+}
+.logo-area img {
+	width: 210px;
+	height: 210px;
+	object-fit: contain;
+}
+
+/* ===== 네비게이션 ===== */
+.nav-menu {
+	display: flex;
+	gap: 1.5rem;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.nav-menu a {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	color: #f8f9fa;
+	font-weight: 500;
+	text-decoration: none;
+	font-size: 1rem;
+	transition: color 0.3s ease, transform 0.2s;
+}
+
+.nav-menu a:hover {
+	color: #b7e4c7; /* 연한 그린 */
+	transform: translateY(-2px);
+}
+
+/* ===== 아이콘 스타일 ===== */
+.nav-icon {
+	width: 22px;
+	height: 22px;
+	object-fit: contain;
+	filter: brightness(0) invert(1);
+	transition: filter 0.3s;
+}
+
+/* hover 시 아이콘은 텍스트보다 약간 진한 그린 */
+.nav-menu a:hover .nav-icon {
+	filter: brightness(0) saturate(100%) sepia(1) hue-rotate(75deg) saturate(2) brightness(1) contrast(1.1);
+}
+
+/* 색감 조정용: 살짝 더 진한 그린 느낌을 보강 */
+.nav-menu a:hover .nav-icon {
+	filter: invert(87%) sepia(12%) saturate(713%) hue-rotate(77deg) brightness(90%) contrast(95%);
+}
+</style>
+</head>
+
+<body>
+<!-- 헤더 -->
+<header>
+	<div class="header-container">
+		<!-- 좌측: 로고 + 서비스명 -->
+		<div class="logo-area" onclick="location.href='/index'">
+			<img src="/images/logo_w.png" alt="오늘득템 로고타이틀">
+		</div>
+		
+		<!-- 우측: 메뉴 -->
+		<nav>
+			<ul class="nav-menu">
+				<!-- 로그인 상태 아닐 때 -->
+				<li th:if="${session.userEmail == null}">
+					<a href="/user/loginForm"><img src="/images/login.png" alt="로그인" class="nav-icon">로그인</a>
+				</li>
+				
+				<!-- 로그인 상태일 때 - 이메일 표시 -->
+				<li th:if="${session.userEmail != null}">
+					<a href="/user/myPage" style="color: #90EE90; font-weight: 600;">[[${session.userEmail}]]</a>
+				</li>
+				
+				<!-- 로그인 상태일 때 - 로그아웃 버튼 -->
+				<li th:if="${session.userEmail != null}">
+					<a href="/user/logout"><img src="/images/logout.png" alt="로그아웃" class="nav-icon">로그아웃</a>
+				</li>
+
+				<li>
+					<a th:if="${session.userEmail == null}" href="/user/loginForm">
+					<img src="/images/sellicon.png" alt="판매하기" class="nav-icon">판매하기</a>
+					<a th:if="${session.userEmail != null}" href="/post/postWriteForm">
+					<img src="/images/sellicon.png" alt="판매하기" class="nav-icon">판매하기</a>
+				</li>
+				<li>
+					<a th:if="${session.userEmail == null}" href="/user/loginForm">
+					<img src="/images/myicon.png" alt="마이페이지" class="nav-icon">마이페이지</a>
+					<a th:if="${session.userEmail != null}" href="/user/myPage">
+					<img src="/images/myicon.png" alt="마이페이지" class="nav-icon">마이페이지</a>
+				</li>
+			</ul>
+		</nav>
+	</div>
+</header>
+</body>
+</html>

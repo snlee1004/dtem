@@ -1,0 +1,558 @@
+﻿﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>거래 후기 작성 - 오늘득템</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .review-container {
+            max-width: 700px;
+            margin: 5rem auto 2rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .review-header {
+            background: linear-gradient(135deg, #3a5a40 0%, #588157 100%);
+            color: white;
+            padding: 2.5rem 2rem;
+            text-align: center;
+        }
+        
+        .review-header h1 {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .review-header p {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        
+        .review-body {
+            padding: 2.5rem 2rem;
+        }
+        
+        .trade-info {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .trade-info-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #e4f7dd;
+            flex-shrink: 0;
+        }
+        
+        .trade-info-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .trade-info-details {
+            flex: 1;
+        }
+        
+        .trade-info-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        
+        .trade-info-meta {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .form-section {
+            margin-bottom: 2rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        
+        .form-label .required {
+            color: #3a5a40;
+            margin-left: 0.3rem;
+        }
+        
+        /* 별점 */
+        .star-rating {
+            display: flex;
+            gap: 0.5rem;
+            font-size: 2.5rem;
+        }
+        
+        .star {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+            font-size: 2.5rem;
+        }
+        
+        .star:hover {
+            transform: scale(1.3);
+        }
+        
+        .star.filled {
+            color: #FFD700;
+            text-shadow: 
+                0 0 10px rgba(255, 215, 0, 0.8),
+                0 0 20px rgba(255, 215, 0, 0.6),
+                0 0 30px rgba(255, 215, 0, 0.4);
+            filter: brightness(1.2);
+        }
+        
+        .star.empty {
+            color: #e0e0e0;
+            text-shadow: none;
+            filter: brightness(0.7);
+        }
+        
+        /* 점수 슬라이더 */
+        .score-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .score-slider {
+            flex: 1;
+            height: 8px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: linear-gradient(to right, #ffebee 0%, #3a5a40 100%);
+            border-radius: 10px;
+            outline: none;
+        }
+        
+        .score-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #3a5a40;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+        }
+        
+        .score-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            background: #2d4731;
+        }
+        
+        .score-slider::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #3a5a40;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #3a5a40;
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        /* 재거래 희망 */
+        .trade-again-options {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .trade-again-option {
+            flex: 1;
+            padding: 1.2rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            background: white;
+        }
+        
+        .trade-again-option:hover {
+            border-color: #3a5a40;
+            background: #f8f9fa;
+        }
+        
+        .trade-again-option.selected {
+            border-color: #3a5a40;
+            background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+            color: #3a5a40;
+            box-shadow: 0 4px 12px rgba(58, 90, 64, 0.2);
+        }
+        
+        .trade-again-option input[type="radio"] {
+            display: none;
+        }
+        
+        .trade-again-emoji {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* 리뷰 내용 */
+        .review-textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s;
+        }
+        
+        .review-textarea:focus {
+            outline: none;
+            border-color: #3a5a40;
+            box-shadow: 0 0 0 3px rgba(58, 90, 64, 0.1);
+        }
+        
+        .char-count {
+            text-align: right;
+            font-size: 0.85rem;
+            color: #999;
+            margin-top: 0.5rem;
+        }
+        
+        /* 제출 버튼 */
+        .submit-section {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 1.2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #3a5a40 0%, #588157 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(58, 90, 64, 0.3);
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(58, 90, 64, 0.4);
+        }
+        
+        .btn-cancel {
+            background: white;
+            color: #666;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .btn-cancel:hover {
+            background: #f8f9fa;
+            border-color: #999;
+        }
+        
+        /* 반응형 */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
+            .review-container {
+                margin-top: 6rem;
+            }
+            
+            .review-body {
+                padding: 1.5rem 1rem;
+            }
+            
+            .star-rating {
+                font-size: 2rem;
+            }
+            
+            .trade-again-options {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <div th:replace="~{layouts/header.html}"></div>
+    
+    <div class="review-container">
+        <!-- 헤더 -->
+        <div class="review-header">
+            <h1>✨ 거래 후기 작성</h1>
+            <p>거래 경험을 공유해주세요</p>
+        </div>
+        
+        <!-- 본문 -->
+        <div class="review-body">
+            <!-- 거래 정보 -->
+            <div class="trade-info" th:if="${post != null}">
+                <div class="trade-info-image">
+                    <img th:if="${post.postImage != null && !post.postImage.isEmpty()}"
+                         th:src="${#strings.contains(post.postImage, ',') ? #strings.substringBefore(post.postImage, ',') : post.postImage}"
+                         alt="상품 이미지">
+                    <span th:if="${post.postImage == null || post.postImage.isEmpty()}"
+                          style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 2rem;">📦</span>
+                </div>
+                <div class="trade-info-details">
+                    <div class="trade-info-title" th:text="${post.title}">상품명</div>
+                    <div class="trade-info-meta">
+                        <span th:text="${reviewee != null ? reviewee.username + '님과의 거래' : '거래 상대방'}">거래 상대방</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 리뷰 폼 -->
+            <div id="reviewForm">
+                <input type="hidden" id="tradeId" th:value="${tradeId}">
+                <input type="hidden" id="revieweeId" th:value="${revieweeId}">
+                <input type="hidden" id="postId" th:value="${postId}">
+                <input type="hidden" id="ratingValue" value="5">
+                
+                <!-- 별점 -->
+                <div class="form-section">
+                    <label class="form-label">
+                        별점 <span class="required">*</span>
+                        <span style="margin-left: 1rem; color: #3a5a40; font-size: 1.1rem; font-weight: bold;" id="ratingText">⭐ 5점</span>
+                    </label>
+                    <div class="star-rating" id="starRating">
+                        <span class="star filled" data-value="1" onclick="setRating(1)">⭐</span>
+                        <span class="star filled" data-value="2" onclick="setRating(2)">⭐</span>
+                        <span class="star filled" data-value="3" onclick="setRating(3)">⭐</span>
+                        <span class="star filled" data-value="4" onclick="setRating(4)">⭐</span>
+                        <span class="star filled" data-value="5" onclick="setRating(5)">⭐</span>
+                    </div>
+                </div>
+                
+                <!-- 응답속도 -->
+                <div class="form-section">
+                    <label class="form-label">응답속도</label>
+                    <div class="score-container">
+                        <input type="range" 
+                               class="score-slider" 
+                               id="responseSpeed"
+                               name="responseSpeed"
+                               min="1" 
+                               max="5" 
+                               value="3"
+                               oninput="updateScore('responseSpeed')">
+                        <div class="score-value" id="responseSpeedValue">3점</div>
+                    </div>
+                </div>
+                
+                <!-- 매너지수 -->
+                <div class="form-section">
+                    <label class="form-label">매너지수</label>
+                    <div class="score-container">
+                        <input type="range" 
+                               class="score-slider" 
+                               id="mannerScore"
+                               name="mannerScore"
+                               min="1" 
+                               max="5" 
+                               value="3"
+                               oninput="updateScore('mannerScore')">
+                        <div class="score-value" id="mannerScoreValue">3점</div>
+                    </div>
+                </div>
+                
+                <!-- 재거래 희망 -->
+                <div class="form-section">
+                    <label class="form-label">재거래 희망</label>
+                    <div class="trade-again-options">
+                        <label class="trade-again-option selected">
+                            <input type="radio" name="willTradeAgain" value="Y" checked>
+                            <span class="trade-again-emoji">👍</span>
+                            <span>또 거래하고 싶어요</span>
+                        </label>
+                        <label class="trade-again-option">
+                            <input type="radio" name="willTradeAgain" value="N">
+                            <span class="trade-again-emoji">🤔</span>
+                            <span>아쉬웠어요</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- 리뷰 내용 -->
+                <div class="form-section">
+                    <label class="form-label">
+                        거래 후기 <span style="color: #999; font-size: 0.9rem;">(선택사항)</span>
+                    </label>
+                    <textarea class="review-textarea" 
+                              id="reviewContent"
+                              name="reviewContent"
+                              placeholder="거래 경험을 자유롭게 작성해주세요.&#10;&#10;좋았던 점, 아쉬웠던 점 등을 솔직하게 공유해주시면&#10;다른 사용자들에게 큰 도움이 됩니다."
+                              maxlength="2000"
+                              oninput="updateCharCount()"></textarea>
+                    <div class="char-count">
+                        <span id="charCount">0</span> / 2000자
+                    </div>
+                </div>
+                
+                <!-- 제출 버튼 -->
+                <div class="submit-section">
+                    <button type="button" class="btn btn-cancel" onclick="cancelReview()">취소</button>
+                    <button type="button" class="btn btn-submit" onclick="submitReview()">리뷰 등록</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 별점 설정
+        function setRating(rating) {
+            document.getElementById('ratingValue').value = rating;
+            
+            // 별점 텍스트 업데이트
+            const ratingTexts = ['', '⭐ 1점 (별로예요)', '⭐ 2점 (그저그래요)', '⭐ 3점 (보통이예요)', '⭐ 4점 (좋아요)', '⭐ 5점 (최고예요!)'];
+            document.getElementById('ratingText').textContent = ratingTexts[rating];
+            
+            const stars = document.querySelectorAll('.star');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('filled');
+                    star.classList.remove('empty');
+                } else {
+                    star.classList.remove('filled');
+                    star.classList.add('empty');
+                }
+            });
+        }
+        
+        // 점수 업데이트
+        function updateScore(fieldName) {
+            const value = document.getElementById(fieldName).value;
+            document.getElementById(fieldName + 'Value').textContent = value + '점';
+        }
+        
+        // 재거래 희망 옵션 선택
+        document.querySelectorAll('.trade-again-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.trade-again-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+                this.querySelector('input[type="radio"]').checked = true;
+            });
+        });
+        
+        // 글자 수 카운트
+        function updateCharCount() {
+            const content = document.getElementById('reviewContent').value;
+            document.getElementById('charCount').textContent = content.length;
+        }
+        
+        // 취소
+        function cancelReview() {
+            if (confirm('리뷰 작성을 취소하시겠습니까?')) {
+                sessionStorage.setItem('restoreChatSection', 'true');
+                sessionStorage.setItem('activeChatTab', 'sell');
+                location.href = '/user/myPage';
+            }
+        }
+        
+        // 리뷰 제출
+        function submitReview() {
+            const rating = document.getElementById('ratingValue').value;
+            
+            if (!rating || rating < 1 || rating > 5) {
+                alert('별점을 선택해주세요.');
+                return;
+            }
+            
+            // 데이터 수집
+            const tradeId = document.getElementById('tradeId').value;
+            const revieweeId = document.getElementById('revieweeId').value;
+            const postId = document.getElementById('postId').value;
+            const responseSpeed = document.getElementById('responseSpeed').value;
+            const mannerScore = document.getElementById('mannerScore').value;
+            const willTradeAgainElement = document.querySelector('input[name="willTradeAgain"]:checked');
+            const willTradeAgain = willTradeAgainElement ? willTradeAgainElement.value : 'Y';
+            const reviewContent = document.getElementById('reviewContent').value;
+            
+            console.log('리뷰 데이터:', {
+                tradeId, revieweeId, postId, rating, 
+                responseSpeed, mannerScore, willTradeAgain, reviewContent
+            });
+            
+            // 동적 form 생성 및 제출
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/user/submitReview';
+            
+            // hidden input 생성 함수
+            function addHiddenInput(name, value) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = name;
+                input.value = value;
+                form.appendChild(input);
+            }
+            
+            // 모든 데이터 추가
+            addHiddenInput('tradeId', tradeId);
+            addHiddenInput('revieweeId', revieweeId);
+            addHiddenInput('postId', postId);
+            addHiddenInput('rating', rating);
+            addHiddenInput('responseSpeed', responseSpeed);
+            addHiddenInput('mannerScore', mannerScore);
+            addHiddenInput('willTradeAgain', willTradeAgain);
+            addHiddenInput('reviewContent', reviewContent);
+            
+            // form을 body에 추가하고 submit
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
+</body>
+</html>

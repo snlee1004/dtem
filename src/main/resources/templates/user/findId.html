@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>아이디 찾기 결과 - 오늘득템</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background:#f8f9fa;
+      color:#333;
+    }
+    
+    .result-wrap{
+      display:flex; justify-content:center; align-items:center;
+      min-height:calc(100vh - 180px);
+      padding:20px;
+    }
+    .result-card{
+      width:100%; max-width:500px;
+      background:#fff; border-radius:12px;
+      box-shadow:0 2px 8px rgba(0,0,0,.1);
+      padding:2rem;
+      text-align:center;
+    }
+    .result-icon{
+      font-size:4rem; margin-bottom:1rem;
+    }
+    .result-icon.success{ color:#3a5a40; }
+    .result-icon.fail{ color:#e74c3c; }
+    
+    .result-title{
+      font-size:1.8rem; font-weight:700; color:#3a5a40; margin-bottom:1rem;
+    }
+    .result-msg{
+      font-size:1.1rem; color:#666; margin-bottom:2rem; line-height:1.6;
+    }
+    .result-info{
+      background:#f8f9fa; padding:1.5rem; border-radius:10px; margin-bottom:2rem;
+    }
+    .info-label{
+      font-size:0.95rem; color:#666; margin-bottom:0.5rem;
+    }
+    .info-value{
+      font-size:1.3rem; font-weight:700; color:#3a5a40;
+    }
+    .btn-primary{
+      width:100%; padding:14px 16px; border:none; border-radius:8px; cursor:pointer;
+      background:linear-gradient(135deg, #3a5a40 100%);
+      color:#fff; font-weight:700; font-size:1rem; transition:transform .15s;
+      margin-bottom:0.5rem;
+    }
+    .btn-primary:hover{ transform:translateY(-2px); }
+    .btn-secondary{
+      width:100%; padding:12px 16px; border:2px solid #3a5a40; border-radius:8px; cursor:pointer;
+      background:#fff; color:#3a5a40; font-weight:700; font-size:.95rem;
+    }
+    .countdown{
+      margin-top:1rem; font-size:0.9rem; color:#999;
+    }
+  </style>
+  <script th:inline="javascript">
+    var result = /*[[${result}]]*/ 0;
+    
+    // 실패 시 3초 후 뒤로가기
+    if(result === 0) {
+      let countdown = 3;
+      const countdownElement = document.getElementById('countdown');
+      
+      window.onload = function() {
+        const timer = setInterval(function(){
+          countdown--;
+          if(countdownElement) {
+            countdownElement.textContent = countdown;
+          }
+          
+          if(countdown <= 0) {
+            clearInterval(timer);
+            history.back();
+          }
+        }, 1000);
+      }
+    }
+  </script>
+</head>
+<body>
+  <div th:replace="~{layouts/header.html}"></div>
+  
+  <!-- 성공 -->
+  <div class="result-wrap" th:if="${result == 1}">
+    <div class="result-card">
+      <div class="result-icon success">✓</div>
+      <h1 class="result-title">아이디 찾기 완료</h1>
+      <p class="result-msg">
+        회원님의 아이디를 찾았습니다.
+      </p>
+      
+      <div class="result-info">
+        <div class="info-label">[[${username}]]님의 아이디</div>
+        <div class="info-value">[[${email}]]</div>
+      </div>
+      
+      <button class="btn-primary" onclick="location.href='/user/loginForm'">로그인하기</button>
+      <button class="btn-secondary" onclick="location.href='/user/findPwd'">비밀번호 찾기</button>
+    </div>
+  </div>
+  
+  <!-- 실패 -->
+  <div class="result-wrap" th:if="${result == 0}">
+    <div class="result-card">
+      <div class="result-icon fail">✗</div>
+      <h1 class="result-title">아이디를 찾을 수 없습니다</h1>
+      <p class="result-msg">
+        입력하신 정보와 일치하는 회원 정보가 없습니다.<br>
+        다시 확인해주세요.
+      </p>
+      
+      <button class="btn-primary" onclick="history.back()">뒤로 돌아가기</button>
+      <button class="btn-secondary" onclick="location.href='/user/userWriteForm'">회원가입</button>
+      
+      <div class="countdown">
+        <span id="countdown">3</span>초 후 자동으로 돌아갑니다.
+      </div>
+    </div>
+  </div>
+  
+  <div th:replace="~{layouts/footer.html}"></div>
+</body>
+</html>
+

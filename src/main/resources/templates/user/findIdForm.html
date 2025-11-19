@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>아이디 찾기 - 오늘득템</title>
+  <style>
+    /* 공통 스타일 */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background:#f8f9fa;
+      color:#333;
+    }
+    header {
+      background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color:#fff;
+      padding:1rem 0;
+      box-shadow:0 2px 10px rgba(0,0,0,.1);
+    }
+    .container{ max-width:1200px; margin:0 auto; padding:3rem 20px; }
+    
+    /* 아이디 찾기 섹션 */
+    .auth-wrap{
+      display:flex; justify-content:center; align-items:center;
+      min-height:calc(100vh - 180px);
+      padding:20px;
+    }
+    .auth-card{
+      width:100%; max-width:420px;
+      background:#fff; border-radius:12px;
+      box-shadow:0 2px 8px rgba(0,0,0,.1);
+      padding:2rem;
+    }
+    .auth-title{
+      font-size:1.8rem; font-weight:700; color:#3a5a40; text-align:center; margin-bottom:1rem;
+    }
+    .auth-sub{
+      text-align:center; color:#666; margin-bottom:2rem;
+    }
+    .form-row{ display:flex; flex-direction:column; gap:.5rem; margin-bottom:1rem; }
+    label{ font-weight:600; color:#333; }
+    input[type="text"], input[type="email"]{
+      padding:14px 16px; font-size:1rem; border:2px solid #e0e0e0; border-radius:8px; transition:border-color .2s;
+    }
+    input[type="text"]:focus, input[type="email"]:focus{
+      outline:none; border-color:#3a5a40;
+    }
+    .btn-primary{
+      width:100%; padding:14px 16px; border:none; border-radius:8px; cursor:pointer;
+      background:linear-gradient(135deg, #3a5a40 100%);
+      color:#fff; font-weight:700; font-size:1rem; transition:transform .15s;
+    }
+    .btn-primary:hover{ transform:translateY(-2px); }
+    .btn-ghost{
+      width:100%; padding:12px 16px; border:2px solid #e0e0e0; border-radius:8px; cursor:pointer;
+      background:#fff; color:#333; font-weight:700; font-size:.95rem; margin-top:.75rem;
+    }
+    .auth-links{
+      margin-top:1rem; display:flex; justify-content:space-between; font-size:.92rem;
+    }
+    .auth-links a{ color:#3a5a40; text-decoration:none; }
+    .auth-links a:hover{ text-decoration:underline; }
+  </style>
+</head>
+<body>
+  <div th:replace="~{layouts/header.html}"></div>
+  
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <h1 class="auth-title">아이디 찾기</h1>
+      <p class="auth-sub">가입 시 등록한 정보를 입력해주세요.</p>
+
+      <form action="/user/findIdResult" name="frm" method="post">
+        <div class="form-row">
+          <label for="username">이름</label>
+          <input type="text" id="username" name="username" placeholder="이름을 입력하세요" required />
+        </div>
+        <div class="form-row">
+          <label for="phone">휴대폰 번호</label>
+          <input type="text" id="phone" name="phone" placeholder="휴대폰 번호를 입력하세요 (예: 010-1234-5678)" required />
+        </div>
+
+        <button type="submit" class="btn-primary">아이디 찾기</button>
+        <button type="button" class="btn-ghost" onclick="location.href='/user/loginForm'">로그인 화면으로</button>
+
+        <div class="auth-links">
+          <a href="/index">← 메인으로</a>
+          <span>
+            <a href="/user/findPwd">비밀번호 찾기</a> ·
+            <a href="/user/userWriteForm">회원가입</a>
+          </span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div th:replace="~{layouts/footer.html}"></div>
+</body>
+</html>

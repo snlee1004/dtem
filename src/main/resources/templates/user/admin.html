@@ -1,0 +1,243 @@
+admin(관리자).txt
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>관리자 대시보드 - 오늘득템</title>
+<style>
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box
+}
+
+body {
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+		'Helvetica Neue', Arial, sans-serif;
+	background: #f8f9fa;
+	color: #333;
+	padding-top: 110px
+}
+
+.container {
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 28px 20px
+}
+
+.kpis {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 12px
+}
+
+@media ( max-width :1000px) {
+	.kpis {
+		grid-template-columns: repeat(2, 1fr)
+	}
+}
+
+.card {
+	background: #fff;
+	border: 1px solid #eee;
+	border-radius: 14px;
+	box-shadow: 0 8px 20px rgba(0, 0, 0, .06)
+}
+
+.box {
+	padding: 16px
+}
+
+.kpi .num {
+	font-size: 1.6rem;
+	font-weight: 800;
+	color: #4c5bd9
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 14px;
+	margin-top: 14px
+}
+
+@media ( max-width :1000px) {
+	.grid {
+		grid-template-columns: 1fr
+	}
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse
+}
+
+th, td {
+	padding: 10px;
+	border-top: 1px solid #f0f0f5;
+	text-align: left
+}
+
+th {
+	background: #fafbff;
+	cursor: pointer
+}
+
+.pill {
+	display: inline-block;
+	padding: 4px 8px;
+	border-radius: 999px;
+	background: #f1f3ff;
+	border: 1px solid #e4e6ff;
+	color: #4c5bd9;
+	font-weight: 700;
+	font-size: .8rem
+}
+</style>
+</head>
+<body>
+	<div th:replace="~{layouts/header.html}"></div>
+
+	<div class="container">
+		<!-- KPI -->
+		<section class="kpis">
+			<div class="card box kpi">
+				<div>일일 활성(DAU)</div>
+				<div class="num" id="k1">12,430</div>
+			</div>
+			<div class="card box kpi">
+				<div>신규 상품</div>
+				<div class="num" id="k2">1,284</div>
+			</div>
+			<div class="card box kpi">
+				<div>신고 접수</div>
+				<div class="num" id="k3">67</div>
+			</div>
+			<div class="card box kpi">
+				<div>전환율</div>
+				<div class="num" id="k4">3.8%</div>
+			</div>
+		</section>
+
+		<section class="grid">
+			<div class="card box">
+				<h3 style="margin-bottom: 8px">최근 가입 회원</h3>
+				<table id="tUsers">
+					<thead>
+						<tr>
+							<th onclick="sortTable('tUsers',0)">아이디</th>
+							<th onclick="sortTable('tUsers',1)">닉네임</th>
+							<th onclick="sortTable('tUsers',2)">가입일</th>
+							<th>상태</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>user101</td>
+							<td>행복한고래</td>
+							<td>2025-10-08</td>
+							<td><span class="pill">정상</span></td>
+						</tr>
+						<tr>
+							<td>user102</td>
+							<td>초코칩</td>
+							<td>2025-10-08</td>
+							<td><span class="pill">정상</span></td>
+						</tr>
+						<tr>
+							<td>user099</td>
+							<td>mint</td>
+							<td>2025-10-07</td>
+							<td><span class="pill">정상</span></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="card box">
+				<h3 style="margin-bottom: 8px">최근 신고 내역</h3>
+				<table id="tReports">
+					<thead>
+						<tr>
+							<th>#</th>
+							<th>대상</th>
+							<th>사유</th>
+							<th onclick="sortTable('tReports',3)">일시</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>321</td>
+							<td>post#1881</td>
+							<td>사기 의심</td>
+							<td>2025-10-08 11:12</td>
+						</tr>
+						<tr>
+							<td>322</td>
+							<td>user#552</td>
+							<td>도배</td>
+							<td>2025-10-08 11:45</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</section>
+
+		<section class="card box" style="margin-top: 14px">
+			<h3 style="margin-bottom: 8px">상품 관리(요약)</h3>
+			<table id="tPosts">
+				<thead>
+					<tr>
+						<th onclick="sortTable('tPosts',0)">상품ID</th>
+						<th>제목</th>
+						<th onclick="sortTable('tPosts',2)">가격</th>
+						<th>판매자</th>
+						<th>상태</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>1901</td>
+						<td>아이패드 10세대</td>
+						<td>380,000</td>
+						<td>mint**</td>
+						<td><span class="pill">판매중</span></td>
+					</tr>
+					<tr>
+						<td>1902</td>
+						<td>게이밍 모니터 27"</td>
+						<td>210,000</td>
+						<td>neo**</td>
+						<td><span class="pill">숨김</span></td>
+					</tr>
+					<tr>
+						<td>1898</td>
+						<td>캠핑의자 2개</td>
+						<td>29,000</td>
+						<td>camp**</td>
+						<td><span class="pill">판매중</span></td>
+					</tr>
+				</tbody>
+			</table>
+		</section>
+	</div>
+
+	<div th:replace="~{layouts/footer.html}"></div>
+
+	<script>
+function sortTable(id, col){
+  const table = document.getElementById(id);
+  const rows = Array.from(table.tBodies[0].rows);
+  const isNum = (v)=>/^\d/.test(v.replaceAll(',',''));
+  const cur = table.getAttribute('data-sort')===`${col}-asc` ? 'desc' : 'asc';
+  rows.sort((a,b)=>{
+    const A=a.cells[col].innerText.trim(); const B=b.cells[col].innerText.trim();
+    if(isNum(A)&&isNum(B)) return (parseFloat(A.replaceAll(',',''))-parseFloat(B.replaceAll(',','')))*(cur==='asc'?1:-1);
+    return A.localeCompare(B,'ko')*(cur==='asc'?1:-1);
+  });
+  table.tBodies[0].append(...rows);
+  table.setAttribute('data-sort', `${col}-${cur}`);
+}
+</script>
+</body>
+</html>

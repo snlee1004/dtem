@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<div th:replace="~{layouts/header.html}"></div>
+	
+	<div style="width: 500px; margin: auto;">
+		<p th:if="${post != null}">작성하신 글이 저장되었습니다.</p>
+		<p th:if="${post == null}">작성하신 글이 저장에 실패하였습니다.</p>
+		<br><br>
+		<a href="/post/postList">목록보기</a>
+	</div>
+	
+	<div th:replace="~{layouts/footer.html}"></div>
+</body>
+</html>

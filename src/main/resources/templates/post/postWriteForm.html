@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>상품 등록하기 - 오늘득템</title>
+<style>
+/* 공통 설정 */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Pretendard', sans-serif;
+    background: #fafafa;
+    margin: 0;
+}
+
+/* 컨테이너 */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 7.5rem 20px 2rem;
+}
+
+/* 뒤로가기 */
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #3a5a40;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    transition: opacity 0.3s;
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0;
+    font: inherit;
+}
+
+.back-btn:hover {
+    opacity: 0.7;
+}
+
+/* 폼 컨테이너 */
+.form-container {
+    background: white;
+    border-radius: 12px;
+    padding: 2.5rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+    color: #666;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+/* 폼 그룹 */
+.form-group {
+    margin-bottom: 2rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+    color: #333;
+}
+
+.required {
+    color: #ff6b6b;
+    margin-left: 0.3rem;
+}
+
+.form-help {
+    color: #999;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+/* 이미지 업로드 */
+.image-upload-section {
+    margin-bottom: 2rem;
+}
+
+.image-upload-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.image-upload-box {
+    border: 3px dashed #e0e0e0;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 첫 번째 이미지 (대표 이미지) - 크게 */
+.image-upload-box.first-image {
+    width: 400px;
+    height: 400px;
+}
+
+/* 나머지 이미지들 - 작게 */
+.image-upload-box.small-image {
+    width: 150px;
+    height: 150px;
+}
+
+/* 업로드 버튼 박스 */
+.image-upload-box.upload-btn {
+    width: 150px;
+    height: 150px;
+}
+
+.image-upload-box:hover {
+    border-color: #3a5a40;
+    background: #f8f9fa;
+}
+
+.image-upload-box.has-image {
+    border-style: solid;
+    border-color: #3a5a40;
+    padding: 0;
+}
+
+.upload-icon {
+    font-size: 2.5rem;
+    color: #999;
+    margin-bottom: 0.5rem;
+}
+
+.upload-text {
+    color: #999;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.image-preview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.remove-image {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 30px;
+    height: 30px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: background 0.2s;
+}
+
+/* 대표 이미지 뱃지 */
+.main-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #3a5a40;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.remove-image:hover {
+    background: rgba(255,0,0,0.8);
+}
+
+.image-count {
+    color: #3a5a40;
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+
+/* 입력 필드 */
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: border-color 0.3s;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: #3a5a40;
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 150px;
+    line-height: 1.6;
+}
+
+/* 가격 입력 */
+.price-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.price-input {
+    flex: 1;
+    text-align: right;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.currency {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #3a5a40;
+}
+
+.price-suggestions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+    flex-wrap: wrap;
+}
+
+.price-tag {
+    padding: 6px 14px;
+    background: #f8f9fa;
+    border: 2px solid #e0e0e0;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.price-tag:hover {
+    border-color: #3a5a40;
+    background: #f0f4ff;
+}
+
+/* 라디오/체크박스 그룹 */
+.radio-group,
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.radio-item,
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 10px 18px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.radio-item:hover,
+.checkbox-item:hover {
+    border-color: #3a5a40;
+    background: #f8f9fa;
+}
+
+.radio-item input[type="radio"],
+.checkbox-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.radio-item input[type="radio"]:checked + label,
+.checkbox-item input[type="checkbox"]:checked + label {
+    color: #3a5a40;
+    font-weight: 600;
+}
+
+.radio-item:has(input:checked),
+.checkbox-item:has(input:checked) {
+    border-color: #3a5a40;
+    background: #f0f4ff;
+}
+
+/* 위치 입력 */
+.location-input-wrapper {
+    display: flex;
+    gap: 0.8rem;
+}
+
+.location-input-wrapper .form-input {
+    flex: 1;
+}
+
+.btn-search {
+    padding: 12px 24px;
+    background: #3a5a40;
+    border: 2px solid #3a5a40;
+    color: white;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-size: 1rem; 
+}
+
+/* 지역 선택 모달 */
+.location-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+.location-modal.active {
+    display: flex;
+}
+
+.location-modal-content {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.location-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.location-modal-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.location-modal-close {
+    width: 32px;
+    height: 32px;
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    color: #999;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.location-modal-close:hover {
+    color: #333;
+}
+
+.location-step {
+    margin-bottom: 1.5rem;
+}
+
+.location-step-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+    color: #3a5a40;
+}
+
+.location-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.8rem;
+}
+
+.location-btn {
+    padding: 12px 16px;
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.location-btn:hover {
+    border-color: #3a5a40;
+    background: #f8f9fa;
+}
+
+.location-btn.selected {
+    border-color: #3a5a40;
+    background: #3a5a40;
+    color: white;
+    font-weight: 600;
+}
+
+.location-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.location-result {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 2px solid #3a5a40;
+}
+
+.location-result-label {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.5rem;
+}
+
+.location-result-text {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #3a5a40;
+}
+
+.location-modal-footer {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid #f0f0f0;
+    display: flex;
+    gap: 1rem;
+}
+
+.location-modal-footer .btn {
+    flex: 1;
+}
+
+/* 네고 옵션 */
+.nego-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.nego-option input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+/* 버튼 그룹 */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 2px solid #f0f0f0;
+}
+
+.btn {
+    flex: 1;
+    padding: 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: #3a5a40;
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: white;
+    border: 2px solid #3a5a40;
+    color: #3a5a40;
+}
+
+.btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+
+/* 푸터 */
+footer {
+    background: #2c3e50;
+    color: white;
+    padding: 2rem 0;
+    margin-top: 4rem;
+    text-align: center;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    .form-container {
+        padding: 1.5rem;
+    }
+    
+    .image-upload-area {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .location-input-wrapper {
+        flex-direction: column;
+    }
+}
+</style>
+</head>
+<body>
+	<div th:replace="~{layouts/header.html}"></div>
+    
+    <!-- 메인 컨텐츠 -->
+    <div class="container">
+        <div class="form-container">
+            <h1 class="page-title">상품 등록하기</h1>
+            <p class="page-subtitle">정확한 정보를 입력해주시면 더 빠르게 거래할 수 있어요</p>
+            
+            <form id="productForm" method="post" action="/post/postWrite" enctype="multipart/form-data">
+                <!-- 이미지 업로드 -->
+                <div class="form-group image-upload-section">
+                    <label class="form-label">상품 이미지<span class="required">*</span></label>
+                    <div class="image-upload-area">
+                        <div class="image-upload-box upload-btn" onclick="document.getElementById('imageInput').click()">
+                            <div class="upload-icon">📷</div>
+                            <div class="upload-text">사진 추가<br>(최대 10장)</div>
+                        </div>
+                        <!-- 이미지 프리뷰가 여기에 추가됩니다 -->
+                    </div>
+                    <div class="image-count">0 / 10</div>
+                    <p class="form-help">* 첫 번째 사진이 대표 이미지로 설정되며, 순서대로 저장됩니다</p>
+                    <input type="file" id="imageInput" name="productImages" multiple accept="image/*" style="display: none;">
+                </div>
+                
+                <!-- 상품명 -->
+                <div class="form-group">
+                    <label class="form-label" for="title">상품명<span class="required">*</span></label>
+                    <input type="text" id="title" name="title" class="form-input" placeholder="상품명을 입력하세요" required>
+                    <p class="form-help">* 상품명은 2자 이상 입력해주세요</p>
+                </div>
+                
+                <!-- 카테고리 -->
+                <div class="form-group">
+                    <label class="form-label" for="category">카테고리<span class="required">*</span></label>
+                    <select id="category" name="category" class="form-select" required>
+                        <option value="">카테고리를 선택하세요</option>
+                        <option value="디지털/가전">📱 디지털/가전</option>
+                        <option value="의류">👕 의류</option>
+                        <option value="가구/인테리어">🏠 가구/인테리어</option>
+                        <option value="도서">📚 도서</option>
+                        <option value="취미/게임">🎮 취미/게임</option>
+                        <option value="뷰티">💄 뷰티</option>
+                        <option value="스포츠/레저">⚽ 스포츠/레저</option>
+                        <option value="유아동/출산">👶 유아동/출산</option>
+                        <option value="가공식품">🍔 가공식품</option>
+                        <option value="기타">📦 기타</option>
+                    </select>
+                </div>
+                
+                <!-- 거래방식 -->
+                <div class="form-group">
+                    <label class="form-label">거래방식<span class="required">*</span></label>
+                    <div class="radio-group">
+                        <label class="radio-item">
+                            <input type="radio" name="tradeMethod" value="DIRECT" required>
+                            <span>직거래</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="tradeMethod" value="DELIVERY">
+                            <span>택배거래</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="tradeMethod" value="BOTH">
+                            <span>직거래+택배</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- 상품상태 -->
+                <div class="form-group">
+                    <label class="form-label">상품상태<span class="required">*</span></label>
+                    <div class="radio-group">
+                        <label class="radio-item">
+                            <input type="radio" name="conditionStatus" value="NEW" required>
+                            <span>새상품</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="conditionStatus" value="LIKE_NEW">
+                            <span>거의 새것</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="conditionStatus" value="USED">
+                            <span>사용감 있음</span>
+                        </label>
+                        <label class="radio-item">
+                            <input type="radio" name="conditionStatus" value="OLD">
+                            <span>많이 사용함</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <!-- 가격 -->
+                <div class="form-group">
+                    <label class="form-label" for="price">판매가격<span class="required">*</span></label>
+                    <div class="price-input-wrapper">
+                        <input type="number" id="price" name="price" class="form-input price-input" placeholder="0" min="0" required>
+                        <span class="currency">원</span>
+                    </div>
+                    <div class="price-suggestions">
+                        <span class="price-tag" onclick="setPrice(10000)">+ 10,000원</span>
+                        <span class="price-tag" onclick="setPrice(50000)">+ 50,000원</span>
+                        <span class="price-tag" onclick="setPrice(100000)">+ 100,000원</span>
+                        <span class="price-tag" onclick="setPrice(500000)">+ 500,000원</span>
+                    </div>
+                    
+                    <div class="nego-option" style="margin-top: 1rem;">
+                        <input type="checkbox" id="negotiable" name="negotiable" value="Y">
+                        <label for="negotiable" style="cursor: pointer;">가격 제안 받기 (네고 가능)</label>
+                    </div>
+                </div>
+                
+                <!-- 거래 희망 지역 -->
+                <div class="form-group">
+                    <label class="form-label" for="location">거래 희망 지역<span class="required">*</span></label>
+                    <div class="location-input-wrapper">
+                        <input type="text" id="location" name="location" class="form-input" placeholder="예) 서울특별시 강남구 역삼동" required readonly>
+                        <button type="button" class="btn-search" onclick="openLocationModal()">🔍 검색</button>
+                    </div>
+                    <p class="form-help">* 직거래를 원하시는 경우 상세 지역을 입력해주세요</p>
+                </div>
+                
+                <!-- 상세 설명 -->
+                <div class="form-group">
+                    <label class="form-label" for="content">상세 설명<span class="required">*</span></label>
+                    <textarea id="content" name="content" class="form-textarea" placeholder="상품에 대한 자세한 설명을 입력해주세요.
+
+예시:
+- 구매 시기
+- 사용 기간
+- 상품 상태
+- 하자 여부
+- 거래 방법
+- 기타 특이사항" required></textarea>
+                    <p class="form-help">* 10자 이상 입력해주세요</p>
+                </div>
+                
+                <!-- 버튼 그룹 -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="history.back()">취소</button>
+                    <button type="submit" class="btn btn-primary">등록하기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 지역 선택 모달 -->
+    <div id="locationModal" class="location-modal">
+        <div class="location-modal-content">
+            <div class="location-modal-header">
+                <h2 class="location-modal-title">거래 희망 지역 선택</h2>
+                <button type="button" class="location-modal-close" onclick="closeLocationModal()">×</button>
+            </div>
+            
+            <!-- 시/도 선택 -->
+            <div class="location-step" id="step1">
+                <div class="location-step-title">1단계: 시/도 선택</div>
+                <div class="location-buttons" id="sidoButtons"></div>
+            </div>
+            
+            <!-- 구/군 선택 -->
+            <div class="location-step" id="step2" style="display: none;">
+                <div class="location-step-title">2단계: 구/군 선택</div>
+                <div class="location-buttons" id="guButtons"></div>
+            </div>
+            
+            <!-- 동 선택 -->
+            <div class="location-step" id="step3" style="display: none;">
+                <div class="location-step-title">3단계: 동 선택</div>
+                <div class="location-buttons" id="dongButtons"></div>
+            </div>
+            
+            <!-- 선택 결과 -->
+            <div class="location-result" id="locationResult" style="display: none;">
+                <div class="location-result-label">선택한 지역</div>
+                <div class="location-result-text" id="selectedLocationText"></div>
+            </div>
+            
+            <div class="location-modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="history.back()">취소</button>
+                <button type="button" class="btn btn-primary" onclick="confirmLocation()" id="confirmBtn" disabled>확인</button>
+            </div>
+        </div>
+    </div>
+    
+	<div th:replace="~{layouts/footer.html}"></div>
+    
+    <script src="/js/locationData.js"></script>
+    <script>
+        let uploadedImages = [];
+        
+        // 지역 선택 관련 변수
+        let selectedSido = null;
+        let selectedGu = null;
+        let selectedDong = null;
+        
+        // 지역 선택 모달 열기
+        function openLocationModal() {
+            document.getElementById('locationModal').classList.add('active');
+            loadSidoButtons();
+            resetLocationSelection();
+        }
+        
+        // 지역 선택 모달 닫기
+        function closeLocationModal() {
+            document.getElementById('locationModal').classList.remove('active');
+        }
+        
+        // 지역 선택 초기화
+        function resetLocationSelection() {
+            selectedSido = null;
+            selectedGu = null;
+            selectedDong = null;
+            
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('step3').style.display = 'none';
+            document.getElementById('locationResult').style.display = 'none';
+            document.getElementById('confirmBtn').disabled = true;
+        }
+        
+        // 시/도 버튼 로드
+        function loadSidoButtons() {
+            const sidoButtons = document.getElementById('sidoButtons');
+            sidoButtons.innerHTML = '';
+            
+            for (const sido in locationData) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'location-btn';
+                btn.textContent = sido;
+                btn.onclick = () => selectSido(sido);
+                sidoButtons.appendChild(btn);
+            }
+        }
+        
+        // 시/도 선택
+        function selectSido(sido) {
+            selectedSido = sido;
+            selectedGu = null;
+            selectedDong = null;
+            
+            // 시/도 버튼 활성화 표시
+            document.querySelectorAll('#sidoButtons .location-btn').forEach(btn => {
+                btn.classList.remove('selected');
+                if (btn.textContent === sido) {
+                    btn.classList.add('selected');
+                }
+            });
+            
+            // 구/군 버튼 로드
+            loadGuButtons(sido);
+            
+            // 2단계 표시, 3단계 숨김
+            document.getElementById('step2').style.display = 'block';
+            document.getElementById('step3').style.display = 'none';
+            
+            // 선택 결과 표시 (시/도만 선택한 상태)
+            document.getElementById('selectedLocationText').textContent = selectedSido;
+            document.getElementById('locationResult').style.display = 'block';
+            document.getElementById('confirmBtn').disabled = false;
+        }
+        
+        // 구/군 버튼 로드
+        function loadGuButtons(sido) {
+            const guButtons = document.getElementById('guButtons');
+            guButtons.innerHTML = '';
+            
+            const guData = locationData[sido];
+            for (const gu in guData) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'location-btn';
+                btn.textContent = gu;
+                btn.onclick = () => selectGu(gu);
+                guButtons.appendChild(btn);
+            }
+        }
+        
+        // 구/군 선택
+        function selectGu(gu) {
+            selectedGu = gu;
+            selectedDong = null;
+            
+            // 구/군 버튼 활성화 표시
+            document.querySelectorAll('#guButtons .location-btn').forEach(btn => {
+                btn.classList.remove('selected');
+                if (btn.textContent === gu) {
+                    btn.classList.add('selected');
+                }
+            });
+            
+            // 동 버튼 로드
+            loadDongButtons(selectedSido, gu);
+            
+            // 3단계 표시
+            document.getElementById('step3').style.display = 'block';
+            
+            // 선택 결과 표시 (시/도 + 시/군/구 선택한 상태)
+            const partialLocation = `${selectedSido} ${selectedGu}`;
+            document.getElementById('selectedLocationText').textContent = partialLocation;
+            document.getElementById('locationResult').style.display = 'block';
+            document.getElementById('confirmBtn').disabled = false;
+        }
+        
+        // 동 버튼 로드
+        function loadDongButtons(sido, gu) {
+            const dongButtons = document.getElementById('dongButtons');
+            dongButtons.innerHTML = '';
+            
+            const dongData = locationData[sido][gu];
+            dongData.forEach(dong => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'location-btn';
+                btn.textContent = dong;
+                btn.onclick = () => selectDong(dong);
+                dongButtons.appendChild(btn);
+            });
+        }
+        
+        // 동 선택
+        function selectDong(dong) {
+            selectedDong = dong;
+            
+            // 동 버튼 활성화 표시
+            document.querySelectorAll('#dongButtons .location-btn').forEach(btn => {
+                btn.classList.remove('selected');
+                if (btn.textContent === dong) {
+                    btn.classList.add('selected');
+                }
+            });
+            
+            // 선택 결과 표시
+            const fullLocation = `${selectedSido} ${selectedGu} ${selectedDong}`;
+            document.getElementById('selectedLocationText').textContent = fullLocation;
+            document.getElementById('locationResult').style.display = 'block';
+            document.getElementById('confirmBtn').disabled = false;
+        }
+        
+        // 지역 선택 확인
+        function confirmLocation() {
+            let location = '';
+            
+            if (selectedDong) {
+                // 동까지 선택한 경우
+                location = `${selectedSido} ${selectedGu} ${selectedDong}`;
+            } else if (selectedGu) {
+                // 시/군/구까지만 선택한 경우
+                location = `${selectedSido} ${selectedGu}`;
+            } else if (selectedSido) {
+                // 시/도만 선택한 경우
+                location = selectedSido;
+            }
+            
+            if (location) {
+                document.getElementById('location').value = location;
+                closeLocationModal();
+            }
+        }
+        
+        // 모달 외부 클릭 시 닫기
+        document.getElementById('locationModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLocationModal();
+            }
+        });
+        
+        // 이미지 업로드 처리
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            const maxImages = 10;
+            const remainingSlots = maxImages - uploadedImages.length;
+            
+            if (files.length > remainingSlots) {
+                alert(`최대 ${maxImages}장까지 업로드 가능합니다.`);
+                return;
+            }
+            
+            files.forEach(file => {
+                if (uploadedImages.length >= maxImages) return;
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    uploadedImages.push({
+                        file: file,
+                        dataUrl: event.target.result
+                    });
+                    updateImagePreview();
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            // input 초기화
+            e.target.value = '';
+        });
+        
+        // 이미지 미리보기 업데이트
+        function updateImagePreview() {
+            const container = document.querySelector('.image-upload-area');
+            const uploadBox = container.querySelector('.image-upload-box:first-child');
+            
+            // 기존 프리뷰 제거
+            const existingPreviews = container.querySelectorAll('.image-upload-box:not(:first-child)');
+            existingPreviews.forEach(el => el.remove());
+            
+            // 새 프리뷰 추가
+            uploadedImages.forEach((img, index) => {
+                const previewBox = document.createElement('div');
+                
+                // 첫 번째 이미지는 크게, 나머지는 작게
+                if (index === 0) {
+                    previewBox.className = 'image-upload-box has-image first-image';
+                    previewBox.innerHTML = `
+                        <div class="main-badge">대표 이미지</div>
+                        <img src="${img.dataUrl}" class="image-preview" alt="대표 이미지">
+                        <button type="button" class="remove-image" onclick="removeImage(${index})">×</button>
+                    `;
+                } else {
+                    previewBox.className = 'image-upload-box has-image small-image';
+                    previewBox.innerHTML = `
+                        <img src="${img.dataUrl}" class="image-preview" alt="Preview ${index + 1}">
+                        <button type="button" class="remove-image" onclick="removeImage(${index})">×</button>
+                    `;
+                }
+                
+                container.appendChild(previewBox);
+            });
+            
+            // 이미지 카운트 업데이트
+            document.querySelector('.image-count').textContent = `${uploadedImages.length} / 10`;
+            
+            // 업로드 버튼 표시/숨김
+            if (uploadedImages.length >= 10) {
+                uploadBox.style.display = 'none';
+            } else {
+                uploadBox.style.display = 'flex';
+            }
+        }
+        
+        // 이미지 제거
+        function removeImage(index) {
+            uploadedImages.splice(index, 1);
+            updateImagePreview();
+        }
+        
+        // 가격 설정
+        function setPrice(amount) {
+            const priceInput = document.getElementById('price');
+            const currentPrice = parseInt(priceInput.value) || 0;
+            priceInput.value = currentPrice + amount;
+        }
+        
+        // 미리보기
+        function previewPost() {
+            if (!validateForm()) {
+                return;
+            }
+            alert('미리보기 기능은 개발 중입니다.');
+        }
+        
+        // 폼 유효성 검사
+        function validateForm() {
+            if (uploadedImages.length === 0) {
+                alert('상품 이미지를 최소 1장 이상 등록해주세요.');
+                return false;
+            }
+            
+            const title = document.getElementById('title').value.trim();
+            if (title.length < 2) {
+                alert('상품명을 2자 이상 입력해주세요.');
+                return false;
+            }
+            
+            const category = document.getElementById('category').value;
+            if (!category) {
+                alert('카테고리를 선택해주세요.');
+                return false;
+            }
+            
+            const tradeMethod = document.querySelector('input[name="tradeMethod"]:checked');
+            if (!tradeMethod) {
+                alert('거래방식을 선택해주세요.');
+                return false;
+            }
+            
+            const condition = document.querySelector('input[name="conditionStatus"]:checked');
+            if (!condition) {
+                alert('상품상태를 선택해주세요.');
+                return false;
+            }
+            
+            const price = document.getElementById('price').value;
+            if (!price || parseInt(price) <= 0) {
+                alert('판매가격을 입력해주세요.');
+                return false;
+            }
+            
+            const location = document.getElementById('location').value.trim();
+            if (!location) {
+                alert('거래 희망 지역을 입력해주세요.');
+                return false;
+            }
+            
+            const content = document.getElementById('content').value.trim();
+            if (content.length < 10) {
+                alert('상세 설명을 10자 이상 입력해주세요.');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // 폼 제출
+        document.getElementById('productForm').addEventListener('submit', function(e) {
+            if (!validateForm()) {
+                e.preventDefault();
+                return false;
+            }
+            
+            // negotiable 체크박스 처리
+            const negotiableCheckbox = document.getElementById('negotiable');
+            if (!negotiableCheckbox.checked) {
+                negotiableCheckbox.value = 'N';
+                negotiableCheckbox.checked = true; // N 값을 전송하기 위해
+            }
+            
+            // uploadedImages 배열의 파일들을 실제 input에 할당
+            const imageInput = document.getElementById('imageInput');
+            const dataTransfer = new DataTransfer();
+            
+            uploadedImages.forEach(img => {
+                dataTransfer.items.add(img.file);
+            });
+            
+            imageInput.files = dataTransfer.files;
+            
+            // 폼이 정상적으로 서버로 전송됨
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>전체상품 - 오늘득템</title>
+<style>
+/* ===== 공통 스타일 ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+        'Helvetica Neue', Arial, sans-serif;
+    background-color: #ffffff;
+    color: #333;
+    padding-top: 100px;
+}
+
+/* 검색 섹션 */
+.search-section {
+   width: 320px; 
+   background: white;
+   padding: 2rem 15px;
+   text-align: center;
+   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+   border: 2px solid #3a5a40; 
+   border-radius: 12px; 
+}
+
+.search-section h1 {
+   font-size: 1.5rem;
+   margin-bottom: 1rem;
+   color: #3a5a40;
+}
+
+.search-section p {
+   font-size: 1.1rem;
+   color: #666;
+   margin-bottom: 2rem;
+}
+
+.search-box { 
+   display: flex;
+   width: 100%;
+   margin: auto;   
+    gap: 3px;
+}
+
+.search-box input {
+   flex: 1;
+   padding: 10px 12px;
+   border: 2px solid #e0e0e0;
+   border-radius: 8px;
+   font-size: 1rem;
+   transition: border-color 0.3s;
+}
+
+.search-box input:focus {
+   outline: none;
+   border-color: #667eea;
+}
+
+.search-box button {
+   padding: 10px 12px;
+   background: #3a5a40;
+   color: white;
+   border: 2px solid #e0e0e0;
+   border-left: none;
+   border-radius: 8px;
+   font-size: 1rem;
+   font-weight: bold;
+   cursor: pointer;
+   transition: transform 0.2s;
+   flex-shrink: 0;  
+}
+
+.search-box button:hover {
+   transform: translateY(-2px);
+}
+
+/* 위치 선택 섹션 */
+.location-section {
+    text-align: left;
+}
+
+.location-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #3a5a40;
+    margin-bottom: 0.5rem;
+}
+
+.location-box {
+    display: flex;
+    flex-direction: column; /* 세로 배치 */
+    gap: 10px;
+}
+
+.location-box select {
+    padding: 8px 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #333;
+    transition: border-color 0.3s;
+}
+
+.location-box select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.category-section h2 {
+    font-size: 1.2rem;      
+    font-weight: 600;
+    color: #3a5a40;
+    margin-bottom: 0.5rem;
+}
+
+.category-radio label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    color: #333; /* 검색창 글씨 색과 동일 */
+    cursor: pointer;
+}
+
+.category-radio input[type="radio"] {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.price-section h2 {
+    font-size: 1.2rem; /* 위치/카테고리 제목과 동일 */
+    font-weight: 600;
+    color: #3a5a40;
+    margin-bottom: 0.5rem;
+}
+
+.price-radio label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 1rem; /* 위치/카테고리 라디오와 동일 */
+    color: #333;
+    cursor: pointer;
+}
+
+.price-radio input[type="radio"] {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.price-input input {
+    font-size: 1rem;
+    color: #333; /* 검색창과 동일 */
+}
+
+.price-input button:hover {
+    transform: translateY(-2px);
+}
+
+/* ===== 컨테이너 ===== */
+.container { max-width: 1200px; margin: 0 auto; padding: 2rem 20px; }
+
+/* ===== 상품 목록 ===== */
+.posts-list { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+.post-item { display: flex; padding: 1.5rem; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.2s; }
+.post-item:hover { background: #f8f9fa; }
+.post-item:last-child { border-bottom: none; }
+
+/* 판매완료 상품 스타일 */
+.post-item.sold { opacity: 0.5; cursor: not-allowed; background: #f5f5f5; }
+.post-item.sold:hover { background: #f5f5f5; }
+
+.post-thumbnail {
+    width: 150px; height: 150px; background: #e4f7dd;
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 3rem; flex-shrink: 0;
+    object-fit: cover;
+}
+.post-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.post-info { flex: 1; padding-left: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; }
+.post-header { display: flex; justify-content: space-between; align-items: start; }
+.post-details { flex: 1; }
+.post-status { padding: 4px 12px; background: #d17a3a; color: white; border-radius: 4px; font-size: 0.85rem; font-weight: bold; }
+.post-status.sold { background: #999; }
+.post-title-list { font-size: 1.3rem; font-weight: 600; margin-bottom: 0.5rem; color: #333; }
+.post-desc { color: #666; margin-bottom: 1rem; line-height: 1.5; }
+.post-footer { display: flex; justify-content: space-between; align-items: center; }
+.post-price-list { font-size: 1.5rem; font-weight: bold; color: #3a5a40; }
+.post-meta-list { display: flex; gap: 1rem; font-size: 0.9rem; color: #999; }
+.post-meta-item { display: flex; align-items: center; gap: 0.3rem; }
+
+/* ===== 페이지네이션 ===== */
+.pagination { display: flex; justify-content: center; gap: 0.5rem; margin-top: 2rem; }
+.page-btn { display: inline-block; padding: 8px 14px; border: 2px solid #e0e0e0; background: white; border-radius: 6px; cursor: pointer; transition: all 0.2s; text-decoration: none; color: #333;}
+.page-btn:hover { border-color: #667eea; color: #667eea; }
+.page-btn.active { background: #3a5a40; color: white; border-color: transparent; }
+
+/* ===== 토스트 메시지 ===== */
+.toast-message {
+    position: fixed;
+    top: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-100px);
+    background: linear-gradient(135deg, #3a5a40 0%, #588157 100%);
+    color: white;
+    padding: 1.2rem 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(58, 90, 64, 0.4);
+    font-size: 1.1rem;
+    font-weight: 600;
+    z-index: 10000;
+    opacity: 0;
+    animation: slideDown 0.5s ease forwards, fadeOut 0.5s ease 2.5s forwards;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.toast-message::before {
+    content: '✓';
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: white;
+    color: #3a5a40;
+    border-radius: 50%;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+@keyframes slideDown {
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+}
+</style>
+</head>
+<body>
+<div th:replace="~{layouts/header.html}"></div>
+
+<!-- 등록 성공 토스트 메시지 -->
+<script th:if="${param.registered}">
+    // 토스트 메시지 생성 및 표시
+    const toast = document.createElement('div');
+    toast.className = 'toast-message';
+    toast.textContent = '등록되었습니다';
+    document.body.appendChild(toast);
+    
+    // 3초 후 토스트 메시지 제거
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+    
+    // URL에서 registered 파라미터 제거 (새로고침 시 다시 안 뜨게)
+    const url = new URL(window.location);
+    url.searchParams.delete('registered');
+    window.history.replaceState({}, '', url);
+</script>
+
+<div class="container" style="display: flex; gap: 2rem;">
+    <!-- 좌측: 검색 섹션 -->
+      <aside style="flex: 1;">
+         <section class="search-section">
+            <h1>오늘의 득템을 찾아보세요</h1>
+            <p>
+               믿을 수 있는 중고거래,<br> 오늘득템에서 시작하세요
+            </p>
+            <form id="searchForm" action="/post/postList" method="get">
+               <div class="search-box">
+                  <input type="text" name="title" placeholder="어떤 상품을 찾으시나요?" th:value="${title}">
+                  <button type="submit">검색</button>
+               </div>
+
+               <!-- 한 줄 띄우기 -->
+               <div style="height: 1.5rem;"></div>
+
+               <!-- 위치 선택 영역 -->
+               <div class="location-section">
+                  <h2 class="location-title">위치 선택</h2>
+                  <div class="location-box">
+                    <select id="sido" name="sido">
+                        <option value="">시/도 선택</option>
+                    </select>
+                    <select id="sigungu" name="sigungu" disabled>
+                        <option value="">시/군/구 선택</option>
+                    </select>
+                    <select id="dong" name="dong" disabled>
+                        <option value="">읍/면/동 선택</option>
+                    </select>
+                  </div>
+               </div>
+
+               <!-- 카테고리 선택 영역 -->
+               <div class="category-section"
+                  style="margin-top: 1.5rem; text-align: left;">
+                  <h2 class="location-title">카테고리 선택</h2>
+                  <fieldset class="category-radio"
+                     style="border: none; padding: 0; margin-top: 0.5rem;">
+                     <label><input type="radio" name="category" value="" th:checked="${category == null or category == ''}"> 전체보기</label>
+                     <label><input type="radio" name="category" value="디지털/가전" th:checked="${category == '디지털/가전'}"> 디지털/가전</label>
+                     <label><input type="radio" name="category" value="가구/인테리어" th:checked="${category == '가구/인테리어'}"> 가구/인테리어</label>
+                     <label><input type="radio" name="category" value="생활/주방" th:checked="${category == '생활/주방'}"> 생활/주방</label>
+                     <label><input type="radio" name="category" value="유아동" th:checked="${category == '유아동'}"> 유아동</label>
+                     <label><input type="radio" name="category" value="패션/잡화" th:checked="${category == '패션/잡화'}"> 패션/잡화</label>
+                     <label><input type="radio" name="category" value="뷰티" th:checked="${category == '뷰티'}"> 뷰티</label>
+                     <label><input type="radio" name="category" value="취미/도서" th:checked="${category == '취미/도서'}"> 취미/도서</label>
+                     <label><input type="radio" name="category" value="식품" th:checked="${category == '식품'}"> 식품</label>
+                     <label><input type="radio" name="category" value="반려동물" th:checked="${category == '반려동물'}"> 반려동물</label>
+                  </fieldset>
+               </div>
+
+               <!-- 가격 선택 영역 -->
+               <div class="price-section"
+                  style="margin-top: 1.5rem; text-align: left;">
+                  <h2 class="location-title">가격 선택</h2>
+                  <!-- 라디오 버튼 가격대 -->
+                  <fieldset class="price-radio"
+                     style="border: none; padding: 0; margin-top: 0.5rem;">
+                     <label><input type="radio" name="priceRange" value="all" checked onclick="setPriceRange('all')"> 전체보기</label>
+                     <label><input type="radio" name="priceRange" value="free" onclick="setPriceRange('free')"> 나눔</label>
+                     <label><input type="radio" name="priceRange" value="5000" onclick="setPriceRange('5000')"> 5,000원 이하</label>
+                     <label><input type="radio" name="priceRange" value="10000" onclick="setPriceRange('10000')"> 10,000원 이하</label>
+                     <label><input type="radio" name="priceRange" value="20000" onclick="setPriceRange('20000')"> 20,000원 이하</label>
+                  </fieldset>
+
+                  <!-- 직접 가격 입력 -->
+                  <div class="price-input"
+                     style="display: flex; gap: 5px; margin-top: 0.5rem;">
+                     <input type="number" id="minPriceInput" name="minPrice" placeholder="최소가격" min="0" th:value="${minPrice}"
+                        style="padding: 8px 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; height: 38px; width: 100px;">
+                     <span style="align-self: center;">~</span>
+                     <input type="number" id="maxPriceInput" name="maxPrice" placeholder="최대가격" min="0" th:value="${maxPrice}"
+                        style="padding: 8px 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; height: 38px; width: 100px;">
+                     <button type="submit"
+                              style="padding: 8px 12px; background: #3a5a40; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; height: 38px; width: 60px;">
+                              검색
+                          </button>
+                  </div>
+               </div>
+            </form>
+         </section>
+      </aside>
+
+    <!-- 우측: 상품 목록 -->
+    <main style="flex: 3; display: flex; flex-direction: column; gap: 2rem;">
+       <!-- 상품 목록 -->
+      <div class="posts-list">
+          <!-- 게시물이 없을 때 -->
+          <div th:if="${#lists.isEmpty(posts)}" style="padding: 3rem; text-align: center; color: #666;">
+              <p style="font-size: 1.2rem; margin-bottom: 0.5rem;">😢 검색 결과가 없습니다</p>
+              <p style="font-size: 0.9rem;">다른 검색 조건을 시도해보세요</p>
+          </div>
+          
+          <!-- 게시물 목록 -->
+          <div class="post-item"
+               th:each="post : ${posts}"
+               th:classappend="${post.status == 'SOLD'} ? 'sold' : ''"
+               th:onclick="${post.status != 'SOLD'} ? 'goToPostView('+${post.postId}+')' : ''">
+      
+              <!-- 썸네일 이미지 -->
+              <div class="post-thumbnail">
+                  <img th:if="${post.postImage != null and !#strings.isEmpty(post.postImage)}"
+                       th:src="${#strings.contains(post.postImage, ',') ? #strings.substringBefore(post.postImage, ',') : post.postImage}"
+                       alt="상품 이미지">
+                  <span th:unless="${post.postImage != null and !#strings.isEmpty(post.postImage)}">📷</span>
+              </div>
+              
+              <div class="post-info">
+                  <div class="post-header">
+                      <div class="post-details">
+                          <div class="post-title-list" th:text="${post.title}">상품명</div>
+                          <div class="post-desc" th:text="${post.content}">상품 설명</div>
+                      </div>
+      
+                      <!-- 판매상태 -->
+                      <div class="post-status"
+                           th:classappend="${post.status == 'SOLD'} ? ' sold' : ''"
+                           th:text="${post.status == 'SOLD'} ? '판매완료' : (${post.status == 'RESERVED'} ? '예약중' : '판매중')">
+                          판매중
+                      </div>
+                  </div>
+      
+                  <div class="post-footer">
+                      <div class="post-price-list"
+                           th:text="${#numbers.formatInteger(post.price, 0, 'COMMA') + '원'}">
+                           0원
+                      </div>
+      
+                      <div class="post-meta-list">
+                          <!-- 위치 정보 표시 -->
+                          <span class="post-meta-item" th:text="'📍 ' + ${post.location}">📍 지역정보</span>
+                          <span class="post-meta-item" th:text="'👁 ' + ${post.hit}">👁 0</span>
+                          <span class="post-meta-item" th:text="'❤️ ' + ${post.wishlistCount}">❤️ 0</span>
+                          <span class="post-meta-item" th:text="'⏰ ' + ${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">
+                              ⏰ 등록일
+                          </span>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+
+        <!-- 페이지네이션 -->
+        <div class="pagination" th:if="${totalPages > 0 and !#lists.isEmpty(posts)}">
+            <!-- 이전 버튼 -->
+            <a class="page-btn" 
+               th:if="${startPage > 1}"
+               th:href="@{'/post/postList'(pg=${startPage - 1}, sort=${sort}, title=${title}, sido=${sido}, sigungu=${sigungu}, dong=${dong}, category=${category}, minPrice=${minPrice}, maxPrice=${maxPrice})}">
+                이전
+            </a>
+            
+            <!-- 페이지 번호 -->
+          <a class="page-btn"
+             th:each="i : ${#numbers.sequence(startPage, endPage)}"
+             th:text="${i}"
+             th:href="@{'/post/postList'(pg=${i}, sort=${sort}, title=${title}, sido=${sido}, sigungu=${sigungu}, dong=${dong}, category=${category}, minPrice=${minPrice}, maxPrice=${maxPrice})}"
+             th:classappend="${i==currentPage}?' active':''">
+          </a>
+          
+          <!-- 다음 버튼 -->
+          <a class="page-btn"
+             th:if="${endPage < totalPages}"
+             th:href="@{'/post/postList'(pg=${endPage + 1}, sort=${sort}, title=${title}, sido=${sido}, sigungu=${sigungu}, dong=${dong}, category=${category}, minPrice=${minPrice}, maxPrice=${maxPrice})}">
+              다음
+          </a>
+      </div>
+    </main>
+</div>
+
+<div th:replace="~{layouts/footer.html}"></div>
+
+<script src="/js/locationData.js"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    // locationData가 로드되었는지 확인
+    if (typeof locationData === 'undefined') {
+        console.error('locationData.js가 로드되지 않았습니다!');
+    }
+    
+    const regionData = typeof locationData !== 'undefined' ? locationData : {};
+
+    let selectedSido = /*[[${sido}]]*/ '';
+    let selectedSigungu = /*[[${sigungu}]]*/ '';
+    let selectedDong = /*[[${dong}]]*/ '';
+
+    // 페이지 로드 시 실행
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('페이지 로드됨, regionData:', regionData);
+        
+        // 현재 postList URL을 sessionStorage에 저장 (postView에서 돌아올 때 사용)
+        sessionStorage.setItem('postListUrl', window.location.href);
+        
+        loadSidoOptions();
+        
+        // 검색 조건이 있으면 복원
+        if (selectedSido) {
+            document.getElementById('sido').value = selectedSido;
+            loadSigunguOptions(selectedSido);
+            
+            if (selectedSigungu) {
+                setTimeout(() => {
+                    document.getElementById('sigungu').value = selectedSigungu;
+                    loadDongOptions(selectedSido, selectedSigungu);
+                    
+                    if (selectedDong) {
+                        setTimeout(() => {
+                            document.getElementById('dong').value = selectedDong;
+                        }, 50);
+                    }
+                }, 50);
+            }
+        }
+    });
+
+    // 시/도 목록 로드
+    function loadSidoOptions() {
+        const sidoSelect = document.getElementById('sido');
+        for (const sido in regionData) {
+            const option = document.createElement('option');
+            option.value = sido;
+            option.textContent = sido;
+            sidoSelect.appendChild(option);
+        }
+    }
+
+    // 시/군/구 목록 로드
+    function loadSigunguOptions(sido) {
+        const sigunguSelect = document.getElementById('sigungu');
+        const dongSelect = document.getElementById('dong');
+        
+        sigunguSelect.innerHTML = '<option value="">시/군/구 선택</option>';
+        dongSelect.innerHTML = '<option value="">읍/면/동 선택</option>';
+        dongSelect.disabled = true;
+        
+        if (sido && regionData[sido]) {
+            sigunguSelect.disabled = false;
+            for (const sigungu in regionData[sido]) {
+                const option = document.createElement('option');
+                option.value = sigungu;
+                option.textContent = sigungu;
+                sigunguSelect.appendChild(option);
+            }
+        } else {
+            sigunguSelect.disabled = true;
+        }
+    }
+
+    // 읍/면/동 목록 로드
+    function loadDongOptions(sido, sigungu) {
+        const dongSelect = document.getElementById('dong');
+        dongSelect.innerHTML = '<option value="">읍/면/동 선택</option>';
+        
+        if (sido && sigungu && regionData[sido] && regionData[sido][sigungu]) {
+            dongSelect.disabled = false;
+            const dongList = regionData[sido][sigungu];
+            dongList.forEach(dong => {
+                const option = document.createElement('option');
+                option.value = dong;
+                option.textContent = dong;
+                dongSelect.appendChild(option);
+            });
+        } else {
+            dongSelect.disabled = true;
+        }
+    }
+
+    // 이벤트 리스너
+    document.getElementById('sido').addEventListener('change', function() {
+        selectedSido = this.value;
+        selectedSigungu = '';
+        selectedDong = '';
+        loadSigunguOptions(selectedSido);
+    });
+
+    document.getElementById('sigungu').addEventListener('change', function() {
+        selectedSigungu = this.value;
+        selectedDong = '';
+        loadDongOptions(selectedSido, selectedSigungu);
+    });
+
+    document.getElementById('dong').addEventListener('change', function() {
+        selectedDong = this.value;
+    });
+
+    // 가격 범위 설정
+    function setPriceRange(range) {
+        const minPriceInput = document.getElementById('minPriceInput');
+        const maxPriceInput = document.getElementById('maxPriceInput');
+        
+        switch(range) {
+            case 'all':
+                minPriceInput.value = '';
+                maxPriceInput.value = '';
+                break;
+            case 'free':
+                minPriceInput.value = '0';
+                maxPriceInput.value = '0';
+                break;
+            case '5000':
+                minPriceInput.value = '0';
+                maxPriceInput.value = '5000';
+                break;
+            case '10000':
+                minPriceInput.value = '0';
+                maxPriceInput.value = '10000';
+                break;
+            case '20000':
+                minPriceInput.value = '0';
+                maxPriceInput.value = '20000';
+                break;
+        }
+    }
+
+    // 카테고리 라디오 버튼에 폼 제출 이벤트 추가
+    document.querySelectorAll('input[name="category"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            document.getElementById('searchForm').submit();
+        });
+    });
+    
+    // postView로 이동하면서 현재 페이지 정보 전달
+    function goToPostView(postId) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const pg = urlParams.get('pg') || '1';
+        const sort = urlParams.get('sort') || '';
+        const title = urlParams.get('title') || '';
+        const sido = urlParams.get('sido') || '';
+        const sigungu = urlParams.get('sigungu') || '';
+        const dong = urlParams.get('dong') || '';
+        const category = urlParams.get('category') || '';
+        const minPrice = urlParams.get('minPrice') || '';
+        const maxPrice = urlParams.get('maxPrice') || '';
+        
+        let postViewUrl = '/post/postView/' + postId + '?';
+        const params = [];
+        
+        if (pg) params.push('pg=' + pg);
+        if (sort) params.push('sort=' + sort);
+        if (title) params.push('title=' + encodeURIComponent(title));
+        if (sido) params.push('sido=' + encodeURIComponent(sido));
+        if (sigungu) params.push('sigungu=' + encodeURIComponent(sigungu));
+        if (dong) params.push('dong=' + encodeURIComponent(dong));
+        if (category) params.push('category=' + encodeURIComponent(category));
+        if (minPrice) params.push('minPrice=' + minPrice);
+        if (maxPrice) params.push('maxPrice=' + maxPrice);
+        
+        location.href = postViewUrl + params.join('&');
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

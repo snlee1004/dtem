@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>회원가입 결과 - 오늘득템</title>
+<style>
+/* ===== 공통 초기화 ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  background: #f8faf7;
+  color: #333;
+  padding-top: 120px; /* 헤더 높이만큼 마진 확보 */
+}
+
+/* ===== 중앙 레이아웃 ===== */
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 60px 20px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(58, 90, 64, 0.15);
+  border: 1px solid #e0e8e0;
+  text-align: center;
+}
+
+/* ===== 메시지 영역 ===== */
+.icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #3a5a40;
+  margin-bottom: 1rem;
+}
+
+.message {
+  font-size: 1.1rem;
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.info-box {
+  background: #f4f7f3;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 1.8rem;
+  text-align: left;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  color: #3a5a40;
+  font-weight: 600;
+}
+
+.info-value {
+  color: #333;
+  font-weight: 500;
+}
+
+.auto-redirect {
+  color: #777;
+  margin: 20px 0;
+  font-size: 0.95rem;
+  font-style: italic;
+}
+
+/* ===== 버튼 ===== */
+.btn {
+  padding: 14px 26px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 1rem;
+  text-decoration: none;
+  margin: 0 8px;
+  display: inline-block;
+  transition: all 0.25s ease;
+}
+
+/* index 버튼 톤 반영 */
+.btn-primary {
+  background: linear-gradient(135deg, #3a5a40 0%, #2F9D27 100%);
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(47, 157, 39, 0.3);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+}
+
+/* index 서브버튼 톤 반영 */
+.btn-secondary {
+  background: #fff;
+  color: #3a5a40;
+  border: 2px solid #d9e8d5;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+.btn-secondary:hover {
+  background: #f2f8f1;
+}
+
+/* 반응형 */
+@media (max-width: 600px) {
+  .container {
+    padding: 40px 20px;
+  }
+  h1 {
+    font-size: 1.6rem;
+  }
+  .btn {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+  }
+}
+</style>
+
+<script th:inline="javascript">
+ 	// 3초 후 자동 이동
+ 	var result = /*[[${result}]]*/ 0;
+	
+	// 성공 시 로그인 페이지로
+ 	if(result === 1) {
+		setTimeout(function() {
+			window.location.href = '/user/loginForm';
+		}, 3000);
+	}
+	
+	// 이메일 중복 시 회원가입 폼으로
+ 	if(result === -1) {
+		let countdown = 3;
+		const countdownElement = document.getElementById('countdown');
+		
+		const timer = setInterval(function() {
+			countdown--;
+			if(countdownElement) {
+				countdownElement.textContent = countdown;
+			}
+			
+			if(countdown <= 0) {
+				clearInterval(timer);
+				window.location.href = '/user/userWriteForm';
+			}
+		}, 1000);
+	}  
+</script>
+
+</head>
+<body>
+ 	
+    <div th:replace="~{layouts/header.html}"></div>
+
+	<div class="container">
+		<!-- 성공 -->
+		<th:block th:if="${result == 1}">
+			<div class="icon success">✅</div>
+			<h1>회원가입 완료!</h1>
+			<p class="message">
+				축하합니다! 회원가입이 성공적으로 완료되었습니다.<br>
+				<strong>[[${name}]]</strong>님, 오늘득템에 오신 것을 환영합니다.
+			</p>
+			<div class="info-box">
+				<div class="info-row">
+					<span class="info-label">가입 이메일</span>
+					<span class="info-value">[[${email}]]</span>
+				</div>
+				<div class="info-row">
+					<span class="info-label">이름</span>
+					<span class="info-value">[[${name}]]</span>
+				</div>
+			</div>
+			<p class="auto-redirect">
+				3초 후 로그인 페이지로 자동 이동합니다...
+			</p>
+			<a href="/user/loginForm" class="btn btn-primary">로그인하러 가기</a>
+			<a href="/index" class="btn btn-secondary">메인으로</a>
+		</th:block>
+
+		<!-- 이메일 중복 -->
+		<th:block th:if="${result == -1}">
+			<div class="icon duplicate">⚠️</div>
+			<h1>이메일 중복</h1>
+			<p class="message">
+				입력하신 이메일 <strong>[[${email}]]</strong>은(는)<br>
+				이미 사용중인 이메일입니다.
+			</p>
+			<p class="message" style="font-size: 1rem; color: #6c757d;">
+				다른 이메일 주소로 가입하시거나,<br>
+				이미 계정이 있으시다면 로그인해 주세요.
+			</p>
+			<p class="auto-redirect" style="color: #f39c12; font-weight: 600;">
+				<span id="countdown">3</span>초 후 회원가입 페이지로 자동 이동합니다...
+			</p>
+			<a href="/user/userWriteForm" class="btn btn-back">다시 가입하기</a>
+			<a href="/user/loginForm" class="btn btn-primary">로그인</a>
+			<a href="/index" class="btn btn-secondary">메인으로</a>
+		</th:block>
+
+
+		<!-- 실패 -->
+		<th:block th:if="${result == 0}">
+			<div class="icon error">❌</div>
+			<h1>회원가입 실패</h1>
+			<p class="message">
+				죄송합니다. 회원가입 중 오류가 발생했습니다.<br>
+				잠시 후 다시 시도해 주세요.
+			</p>
+			<p class="message" style="font-size: 0.95rem; color: #999;">
+				문제가 계속되면 고객센터로 문의해 주세요.
+			</p>
+			<a href="/user/userWriteForm" class="btn btn-back">다시 시도</a>
+			<a href="/index" class="btn btn-secondary">메인으로</a>
+		</th:block>
+	</div>
+		
+	<div th:replace="~{layouts/footer.html}"></div>
+
+</body>
+</html>
+

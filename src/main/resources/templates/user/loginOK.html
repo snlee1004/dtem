@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>로그인 성공 - 오늘득템</title>
+<style>
+/* ===== 초기화 ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  background: #ffffff; /* 화이트 배경 */
+  color: #333;
+  min-height: 100vh;
+  padding-top: 120px; /* 헤더 높이 여백 */
+}
+
+/* ===== 컨테이너 ===== */
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+/* ===== 카드 ===== */
+.success-card {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 20px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+  padding: 60px 50px;
+  transition: box-shadow 0.3s ease;
+}
+
+.success-card:hover {
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+/* ===== 아이콘 ===== */
+.success-icon {
+  font-size: 90px;
+  color: #2F9D27;
+  margin-bottom: 24px;
+  animation: bounce 0.8s ease-out;
+  text-shadow: 0 3px 10px rgba(47,157,39,0.15);
+}
+
+@keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+/* ===== 제목 / 메시지 ===== */
+.success-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #3a5a40;
+  margin-bottom: 16px;
+}
+
+.success-msg {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+/* ===== 사용자 정보 ===== */
+.user-info {
+  display: inline-block;
+  background: #f8f9f8;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 18px 36px;
+  margin-bottom: 36px;
+  font-size: 1.05rem;
+  color: #333;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+}
+
+/* ===== 버튼 영역 ===== */
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 28px;
+}
+
+/* 기본 버튼 */
+.btn-primary {
+  width: 100%;
+  padding: 16px 28px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #3a5a40 0%, #2F9D27 100%);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1.05rem;
+  box-shadow: 0 6px 16px rgba(47,157,39,0.25);
+  transition: transform 0.2s ease;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+}
+
+/* 서브 버튼 */
+.btn-secondary {
+  width: 100%;
+  padding: 14px 26px;
+  border-radius: 12px;
+  border: 2px solid #d9e8d5;
+  background: #fff;
+  color: #3a5a40;
+  font-weight: 700;
+  transition: all 0.25s ease;
+}
+.btn-secondary:hover {
+  background: #f2f8f1;
+  transform: translateY(-2px);
+}
+
+/* 로그아웃 버튼 */
+.btn-logout {
+  color: #e74c3c;
+  border: 2px solid #e74c3c;
+}
+.btn-logout:hover {
+  background: #fff3f3;
+  color: #c0392b;
+  border-color: #c0392b;
+}
+
+/* ===== 반응형 ===== */
+@media (max-width: 768px) {
+  .success-card {
+    padding: 40px 30px;
+  }
+  .success-title {
+    font-size: 1.8rem;
+  }
+  .success-icon {
+    font-size: 80px;
+  }
+}
+@media (max-width: 480px) {
+  .container {
+    padding: 40px 16px;
+  }
+  .success-card {
+    padding: 32px 24px;
+  }
+}
+</style>
+</head>
+<body>
+	<div th:replace="~{layouts/header.html}"></div>
+	
+	<div class="container">
+		<div class="success-card">
+			<div class="success-icon">✓</div>
+			<h1 class="success-title">로그인 성공!</h1>
+			<p class="success-msg">오늘득템에 오신 것을 환영합니다.</p>
+			<div class="user-info">
+				<strong>[[${session.userEmail}]]</strong> ([[${session.userName}]]님)
+			</div>
+			
+			<div class="button-group">
+				<button class="btn-primary" onclick="location.href='/index'">메인으로</button>
+				<button class="btn-secondary" onclick="location.href='/user/myPage'">마이페이지</button>
+				<button class="btn-secondary btn-logout" onclick="location.href='/user/logout'">로그아웃</button>
+			</div>
+		</div>
+	</div>
+	
+	<div th:replace="~{layouts/footer.html}">  </div>
+
+</body>
+</html>

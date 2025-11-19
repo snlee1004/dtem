@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${user.username} + ' - 오늘득템'">사용자 정보</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            padding-top: 100px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem 20px; }
+        .back-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            transition: all 0.3s;
+        }
+        .back-btn:hover { border-color: #3a5a40; color: #3a5a40; }
+        
+        /* 프로필 섹션 */
+        .profile-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #e4f7dd 0%, #e4f9dd 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: white;
+            flex-shrink: 0;
+        }
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        .profile-info {
+            flex: 1;
+        }
+        .profile-name {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .profile-email {
+            color: #666;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+        .profile-intro {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        /* 평점 섹션 */
+        .rating-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+        .rating-box {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .rating-score {
+            font-size: 3.5rem;
+            font-weight: bold;
+            color: #3a5a40;
+            margin-bottom: 0.5rem;
+        }
+        .rating-stars {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .rating-stars-container {
+            position: relative;
+            display: inline-block;
+            line-height: 1;
+        }
+        
+        .rating-stars-empty {
+            color: #ddd;
+            position: relative;
+            z-index: 1;
+            letter-spacing: 0.1rem;
+            filter: brightness(0.9);
+        }
+        
+        .rating-stars-filled {
+            position: absolute;
+            top: 0;
+            left: 0;
+            color: #FFD700;
+            overflow: hidden;
+            white-space: nowrap;
+            z-index: 2;
+            letter-spacing: 0.1rem;
+            text-shadow: 
+                0 0 15px rgba(255, 215, 0, 0.8),
+                0 0 30px rgba(255, 215, 0, 0.5),
+                0 2px 4px rgba(0, 0, 0, 0.2);
+            filter: brightness(1.2) saturate(1.3);
+            animation: starGlow 2s ease-in-out infinite;
+        }
+        
+        @keyframes starGlow {
+            0%, 100% {
+                filter: brightness(1.2) saturate(1.3);
+            }
+            50% {
+                filter: brightness(1.4) saturate(1.5);
+            }
+        }
+        .rating-count {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        .rating-details {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .rating-item {
+            text-align: center;
+        }
+        .rating-item .label {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        .rating-item .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #3a5a40;
+        }
+        
+        /* 판매 상품 섹션 */
+        .products-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .product-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+        .product-image {
+            width: 100%;
+            height: 200px;
+            background: #e4f7dd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+        }
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .product-info {
+            padding: 1rem;
+        }
+        .product-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .product-price {
+            color: #3a5a40;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        .product-meta {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            color: #999;
+            font-size: 0.85rem;
+        }
+        
+        /* 페이징 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+        .page-btn {
+            padding: 8px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            background: white;
+            color: #333;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        .page-btn:hover {
+            border-color: #3a5a40;
+            color: #3a5a40;
+        }
+        .page-btn.active {
+            background: #3a5a40;
+            color: white;
+            border-color: #3a5a40;
+        }
+        
+        /* 빈 상태 */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #999;
+        }
+        .empty-state p {
+            font-size: 1.2rem;
+        }
+        
+        /* 리뷰 목록 스타일 */
+        .review-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .review-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1.5rem;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            background: white;
+            transition: all 0.3s;
+        }
+        
+        .review-item:hover {
+            background: #f8f9fa;
+            border-color: #e0e0e0;
+        }
+        
+        .reviewer-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #e4f7dd 0%, #e4f9dd 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .reviewer-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(58, 90, 64, 0.3);
+        }
+        
+        .reviewer-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        
+        .review-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .reviewer-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #333;
+        }
+        
+        .review-date {
+            color: #999;
+            font-size: 0.9rem;
+        }
+        
+        .review-content {
+            color: #666;
+            line-height: 1.6;
+            margin-top: 0.5rem;
+        }
+        
+        .review-stars-display {
+            font-size: 1.1rem;
+            color: #FFD700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        /* 리뷰 목록 스크롤 */
+        .review-list-scroll {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+        
+        .review-list-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .review-list-scroll::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .review-list-scroll::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #3a5a40 0%, #588157 100%);
+            border-radius: 10px;
+        }
+        
+        .review-list-scroll::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #2d4731 0%, #476846 100%);
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{layouts/header.html}"></div>
+
+<div class="container">
+    <a href="javascript:history.back()" class="back-btn">← 돌아가기</a>
+    
+    <!-- 프로필 섹션 -->
+    <div class="profile-section">
+        <div class="profile-avatar">
+            <img th:if="${user.profileImage != null and !user.profileImage.isEmpty()}"
+                 th:src="${user.profileImage}"
+                 alt="프로필">
+            <span th:if="${user.profileImage == null or user.profileImage.isEmpty()}">👤</span>
+        </div>
+        <div class="profile-info">
+            <div class="profile-name" th:text="${user.username}">사용자</div>
+            <div class="profile-email" th:text="${user.email}">email@example.com</div>
+            <div class="profile-intro" th:if="${user.introduce != null and !user.introduce.isEmpty()}" 
+                 th:text="${user.introduce}">
+                자기소개
+            </div>
+            <div class="profile-intro" th:if="${user.introduce == null or user.introduce.isEmpty()}"
+                 style="color: #999;">
+                등록된 소개가 없습니다.
+            </div>
+        </div>
+    </div>
+    
+    <!-- 평점 섹션 -->
+    <div class="rating-section">
+        <h2 class="section-title">거래 평점</h2>
+        <div class="rating-box">
+            <div class="rating-score" th:text="${averageRating != null ? averageRating : 0.0}">0.0</div>
+            <div class="rating-stars">
+                <!-- 정밀한 별점 표시 (0.1 단위) -->
+                <div class="rating-stars-container">
+                    <div class="rating-stars-empty">★★★★★</div>
+                    <div class="rating-stars-filled" 
+                         th:style="${averageRating != null ? 'width: ' + (averageRating * 20) + '%' : 'width: 0%'}">★★★★★</div>
+                </div>
+            </div>
+            <div class="rating-count" th:text="${reviewCount != null ? '총 ' + reviewCount + '명의 평가' : '총 0명의 평가'}">총 0명의 평가</div>
+            
+            <div class="rating-details">
+                <div class="rating-item">
+                    <div class="label">판매 횟수</div>
+                    <div class="value" th:text="${sellCount != null ? sellCount + '회' : '0회'}">0회</div>
+                </div>
+                <div class="rating-item">
+                    <div class="label">구매 횟수</div>
+                    <div class="value" th:text="${buyCount != null ? buyCount + '회' : '0회'}">0회</div>
+                </div>
+                <div class="rating-item">
+                    <div class="label">받은 리뷰</div>
+                    <div class="value" th:text="${reviewCount != null ? reviewCount + '개' : '0개'}">0개</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 받은 평가 -->
+        <h3 style="font-size: 1.3rem; margin: 2rem 0 1rem 0;">받은 평가</h3>
+        
+        <!-- 리뷰가 없는 경우 -->
+        <div th:if="${receivedReviews == null || receivedReviews.isEmpty()}" 
+             class="empty-state">
+            <p style="font-size: 3rem; margin-bottom: 1rem;">📝</p>
+            <p>아직 받은 평가가 없습니다</p>
+        </div>
+        
+        <!-- 리뷰 목록 (스크롤) -->
+        <div th:if="${receivedReviews != null && !receivedReviews.isEmpty()}" class="review-list-scroll">
+            <div class="review-list">
+            <div th:each="review : ${receivedReviews}" class="review-item">
+                <!-- 프로필 이미지 (클릭 가능) -->
+                <div class="reviewer-avatar" 
+                     th:data-user-id="${review.reviewerId}"
+                     onclick="goToReviewerInfo(this)">
+                    <img th:if="${review.reviewerProfileImage != null && !review.reviewerProfileImage.isEmpty()}" 
+                         th:src="${review.reviewerProfileImage}" 
+                         alt="프로필">
+                    <span th:if="${review.reviewerProfileImage == null || review.reviewerProfileImage.isEmpty()}">👤</span>
+                </div>
+                
+                <div class="review-info">
+                    <div class="review-header">
+                        <div class="reviewer-name">
+                            <span th:text="${review.reviewerName}">사용자</span>님의 평가
+                        </div>
+                        <div class="review-date" th:text="${#temporals.format(review.createdAt, 'yyyy.MM.dd')}">2024.10.19</div>
+                    </div>
+                    
+                    <!-- 별점 표시 -->
+                    <div class="review-stars-display">
+                        <span th:if="${review.rating == 5}">⭐⭐⭐⭐⭐</span>
+                        <span th:if="${review.rating == 4}">⭐⭐⭐⭐☆</span>
+                        <span th:if="${review.rating == 3}">⭐⭐⭐☆☆</span>
+                        <span th:if="${review.rating == 2}">⭐⭐☆☆☆</span>
+                        <span th:if="${review.rating == 1}">⭐☆☆☆☆</span>
+                    </div>
+                    
+                    <div class="review-content" th:text="${review.reviewContent}">리뷰 내용</div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 판매중인 상품 섹션 -->
+    <div class="products-section">
+        <h2 class="section-title" th:text="${user.username} + '님의 판매중인 상품'">판매중인 상품</h2>
+        
+        <!-- 상품이 없을 때 -->
+        <div class="empty-state" th:if="${#lists.isEmpty(posts)}">
+            <p>😢 판매중인 상품이 없습니다</p>
+        </div>
+        
+        <!-- 상품 목록 -->
+        <div class="products-grid" th:if="${!#lists.isEmpty(posts)}">
+            <div class="product-card" th:each="post : ${posts}"
+                 th:onclick="'location.href=\'/post/postView/'+${post.postId}+'\''">
+                <div class="product-image">
+                    <img th:if="${post.postImage != null and !#strings.isEmpty(post.postImage)}"
+                         th:src="${#strings.contains(post.postImage, ',') ? #strings.substringBefore(post.postImage, ',') : post.postImage}"
+                         alt="상품 이미지">
+                    <span th:if="${post.postImage == null or #strings.isEmpty(post.postImage)}">📷</span>
+                </div>
+                <div class="product-info">
+                    <div class="product-title" th:text="${post.title}">상품명</div>
+                    <div class="product-price" th:text="${#numbers.formatInteger(post.price, 0, 'COMMA') + '원'}">0원</div>
+                    <div class="product-meta">
+                        <span th:text="'👁 ' + ${post.hit}">👁 0</span>
+                        <span th:text="'❤️ ' + ${post.wishlistCount}">❤️ 0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 페이징 -->
+        <div class="pagination" th:if="${totalPages > 1}">
+            <!-- 이전 버튼 -->
+            <a class="page-btn" 
+               th:if="${startPage > 1}"
+               th:href="@{'/user/userInfo/' + ${user.userId} + '?pg=' + ${startPage - 1}}">
+                이전
+            </a>
+            
+            <!-- 페이지 번호 -->
+            <a class="page-btn"
+               th:each="i : ${#numbers.sequence(startPage, endPage)}"
+               th:text="${i}"
+               th:href="@{'/user/userInfo/' + ${user.userId} + '?pg=' + ${i}}"
+               th:classappend="${i==currentPage}?' active':''">
+            </a>
+            
+            <!-- 다음 버튼 -->
+            <a class="page-btn"
+               th:if="${endPage < totalPages}"
+               th:href="@{'/user/userInfo/' + ${user.userId} + '?pg=' + ${endPage + 1}}">
+                다음
+            </a>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{layouts/footer.html}"></div>
+
+<script>
+    // 리뷰 작성자 프로필로 이동
+    function goToReviewerInfo(element) {
+        const userId = element.getAttribute('data-user-id');
+        if (userId) {
+            location.href = '/user/userInfo/' + userId;
+        }
+    }
+</script>
+</body>
+</html>
+

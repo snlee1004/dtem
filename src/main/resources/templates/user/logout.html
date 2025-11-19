@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>로그아웃 - 오늘득템</title>
+<style>
+  /* 공통 스타일 */
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background:#f8f9fa;
+    color:#333;
+  }
+  .container{ max-width:800px; margin:80px auto; padding:3rem 20px; text-align:center; }
+  .logout-card{
+    background:#fff; border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,.1);
+    padding:3rem 2rem;
+  }
+  .logout-icon{
+    font-size:4rem; color:#3a5a40; margin-bottom:1rem;
+  }
+  .logout-title{
+    font-size:1.8rem; font-weight:700; color:#3a5a40; margin-bottom:1rem;
+  }
+  .logout-msg{
+    font-size:1.1rem; color:#666; margin-bottom:2rem;
+  }
+  .btn-primary{
+    padding:14px 30px; border:none; border-radius:8px; cursor:pointer;
+    background:linear-gradient(135deg,#3a5a40 100%);
+    color:#fff; font-weight:700; font-size:1rem; margin:0 10px;
+    transition:transform .15s;
+  }
+  .btn-primary:hover{ transform:translateY(-2px); }
+  .btn-secondary{
+    padding:14px 30px; border:2px solid #3a5a40; border-radius:8px; cursor:pointer;
+    background:#fff; color:#3a5a40; font-weight:700; font-size:1rem; margin:0 10px;
+  }
+  .countdown{
+    margin-top:1.5rem;
+    font-size:0.9rem;
+    color:#999;
+  }
+</style>
+<script type="text/javascript">
+	let countdown = 3;
+	
+	window.onload = function() {
+		const countdownElement = document.getElementById('countdown');
+		
+		// 카운트다운 시작
+		const timer = setInterval(function(){
+			countdown--;
+			if(countdownElement) {
+				countdownElement.textContent = countdown;
+			}
+			
+			if(countdown <= 0) {
+				clearInterval(timer);
+				location.href = "/index";
+			}
+		}, 1000);
+	}
+	
+	function goToMain() {
+		location.href = "/index";
+	}
+	
+	function goToLogin() {
+		location.href = "/user/loginForm";
+	}
+</script>
+</head>
+<body>
+	<div th:replace="~{layouts/header.html}"></div>
+	
+	<div class="container">
+		<div class="logout-card">
+			<div class="logout-icon">👋</div>
+			<h1 class="logout-title">로그아웃 완료</h1>
+			<p class="logout-msg">안전하게 로그아웃 되었습니다.<br>이용해주셔서 감사합니다.</p>
+			<br>
+			<button class="btn-primary" onclick="goToMain()">메인으로</button>
+			<button class="btn-secondary" onclick="goToLogin()">다시 로그인</button>
+			
+			<div class="countdown">
+				<span id="countdown">3</span>초 후 메인 페이지로 이동합니다.
+			</div>
+		</div>
+	</div>
+	
+	<div th:replace="~{layouts/footer.html}"></div>
+</body>
+</html>

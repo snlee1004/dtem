@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>로그인 실패 - 오늘득템</title>
+<style>
+  /* 공통 스타일 */
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background:#f8f9fa;
+    color:#333;
+  }
+  .container{ max-width:800px; margin:80px auto; padding:3rem 20px; text-align:center; }
+  .fail-card{
+    background:#fff; border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,.1);
+    padding:3rem 2rem;
+  }
+  .fail-icon{
+    font-size:4rem; color:#e74c3c; margin-bottom:1rem;
+  }
+  .fail-title{
+    font-size:1.8rem; font-weight:700; color:#3a5a40; margin-bottom:1rem;
+  }
+  .fail-msg{
+    font-size:1.1rem; color:#666; margin-bottom:2rem;
+  }
+  .btn-primary{
+    padding:14px 30px; border:none; border-radius:8px; cursor:pointer;
+    background:linear-gradient(135deg, #3a5a40 100%);
+    color:#fff; font-weight:700; font-size:1rem; margin:0 10px;
+    transition:transform .15s;
+  }
+  .btn-primary:hover{ transform:translateY(-2px); }
+  .btn-secondary{
+    padding:14px 30px; border:2px solid #3a5a40; border-radius:8px; cursor:pointer;
+    background:#fff; color:#3a5a40; font-weight:700; font-size:1rem; margin:0 10px;
+  }
+  .link-group{
+    margin-top:2rem;
+    padding-top:2rem;
+    border-top:1px solid #e0e0e0;
+  }
+  .link-group a{
+    color:#3a5a40; text-decoration:none; margin:0 10px;
+  }
+  .link-group a:hover{ text-decoration:underline; }
+</style>
+</head>
+<body>
+	<div th:replace="~{layouts/header.html}"></div>
+	
+	<div class="container">
+		<div class="fail-card">
+			<div class="fail-icon">✗</div>
+			<h1 class="fail-title">로그인 실패</h1>
+			<p class="fail-msg">이메일 또는 비밀번호가 올바르지 않습니다.<br>다시 확인해주세요.</p>
+			<br>
+			<button class="btn-primary" onclick="location.href='/user/loginForm'">다시 로그인</button>
+			<button class="btn-secondary" onclick="location.href='/index'">메인으로</button>
+			
+			<div class="link-group">
+				<a href="/user/findId">아이디 찾기</a> ·
+				<a href="/user/findPwd">비밀번호 찾기</a> ·
+				<a href="/user/userWriteForm">회원가입</a>
+			</div>
+		</div>
+	</div>
+	
+	<div th:replace="~{layouts/footer.html}"></div>
+</body>
+</html>

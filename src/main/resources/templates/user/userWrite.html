@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript" th:inline="javascript">
+	window.onload = function() {
+		setTimeout(function(){
+			var result = /*[[${result}]]*/ 0;
+			if(result > 0) {
+				alert("회원 가입 성공");
+				location.href = "/index";
+			} else {
+				alert("회원 가입 실패");
+				history.back();
+			}
+		}, 100);
+	}
+</script>
+</head>
+<body>
+	<div th:replace="~{layouts/header.html}"></div>
+		
+	<div th:replace="~{layouts/footer.html}"></div>
+</body>
+</html>

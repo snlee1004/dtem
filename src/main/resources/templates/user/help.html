@@ -1,0 +1,148 @@
+help(고객센터).txt
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>고객센터 - 오늘득템</title>
+<style>
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box
+}
+
+body {
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+		'Helvetica Neue', Arial, sans-serif;
+	background: #f8f9fa;
+	color: #333;
+	padding-top: 110px
+}
+
+.container {
+	max-width: 1100px;
+	margin: 0 auto;
+	padding: 28px 20px
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 20px
+}
+
+@media ( max-width :900px) {
+	.grid {
+		grid-template-columns: 1fr
+	}
+}
+
+.card {
+	background: #fff;
+	border: 1px solid #eee;
+	border-radius: 14px;
+	box-shadow: 0 8px 20px rgba(0, 0, 0, .06)
+}
+
+.box {
+	padding: 18px
+}
+
+details {
+	border-top: 1px solid #f0f0f5;
+	padding: 12px 0
+}
+
+summary {
+	cursor: pointer;
+	font-weight: 700
+}
+
+.notice li {
+	padding: 10px 0;
+	border-top: 1px solid #f0f0f5;
+	list-style: none
+}
+
+.btn {
+	padding: 10px 14px;
+	border: none;
+	border-radius: 10px;
+	background: linear-gradient(135deg, #667eea, #764ba2);
+	color: #fff;
+	font-weight: 800;
+	cursor: pointer
+}
+
+input, textarea {
+	width: 100%;
+	padding: 12px;
+	border: 2px solid #e6e6f4;
+	border-radius: 10px
+}
+
+textarea {
+	min-height: 120px;
+	resize: vertical
+}
+</style>
+</head>
+<body>
+	<div th:replace="~{layouts/header.html}"></div>
+
+	<div class="container grid">
+		<!-- FAQ -->
+		<section class="card box">
+			<h2 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 8px">자주
+				묻는 질문(FAQ)</h2>
+			<details open>
+				<summary>안전거래는 어떻게 하나요?</summary>
+				<p style="margin-top: 8px; line-height: 1.7">밝은 곳에서 직거래, 계정/연락처
+					확인, 선입금 요구 주의. 의심 시 안전결제 이용을 권장합니다.</p>
+			</details>
+			<details>
+				<summary>사기 의심 시 신고 방법은?</summary>
+				<p style="margin-top: 8px">상세페이지의 ‘신고’ 버튼 또는 고객센터 문의로 접수하세요.</p>
+			</details>
+			<details>
+				<summary>환불/반품 기준은?</summary>
+				<p style="margin-top: 8px">개인 간 거래 특성상 판매자와 협의가 우선입니다. 분쟁 가이드를
+					확인해 주세요.</p>
+			</details>
+		</section>
+
+		<!-- 공지 -->
+		<section class="card box">
+			<h2 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 8px">공지사항</h2>
+			<ul class="notice">
+				<li><b>[점검] 10/15(화) 02:00~04:00 서비스 점검</b>
+				<div style="color: #666; font-size: .9rem">2025-10-08</div></li>
+				<li><b>[신규] 키워드 알림 기능 오픈</b>
+				<div style="color: #666; font-size: .9rem">2025-09-28</div></li>
+			</ul>
+		</section>
+
+		<!-- 문의 등록 -->
+		<section class="card box" style="grid-column: 1/-1">
+			<h2 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 8px">문의하기</h2>
+			<form
+				onsubmit="event.preventDefault(); alert('문의가 접수되었습니다(데모)'); this.reset();">
+				<div
+					style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px">
+					<input type="text" placeholder="이름" required /> <input type="email"
+						placeholder="이메일" required />
+				</div>
+				<input type="text" placeholder="제목" style="margin-top: 10px"
+					required />
+				<textarea placeholder="문의 내용" style="margin-top: 10px" required></textarea>
+				<div style="margin-top: 10px">
+					<button class="btn" type="submit">문의 접수</button>
+				</div>
+			</form>
+		</section>
+	</div>
+
+	<div th:replace="~{layouts/footer.html}"></div>
+</body>
+</html>

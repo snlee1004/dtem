@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title th:text="'상품 상세보기 - ' + ${post.title}">상품 상세보기 - 오늘득템</title>
+<style>
+/* ===== 공통 설정 ===== */
+* { box-sizing: border-box; }
+body {
+    font-family: 'Pretendard', sans-serif;
+    background: #fafafa;
+    margin: 0;
+}
+/* ===== 컨테이너 ===== */
+.container { max-width: 1200px; margin: 0 auto; padding: 7.5rem 20px 2rem; }
+/* ===== 뒤로가기 ===== */
+.back-btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    color: #3a5a40; text-decoration: none; font-weight: 600;
+    margin-bottom: 1.5rem; transition: opacity 0.3s;
+    border: none; background: none; cursor: pointer; 
+    padding: 0; font: inherit;
+}
+.back-btn:hover { opacity: 0.7; }
+/* ===== 메인 컨텐츠 ===== */
+.detail-wrapper {
+    position: relative;
+    display: flex; gap: 2rem; background: white;
+    border-radius: 12px; padding: 2rem;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+/* ===== 이미지 섹션 ===== */
+.image-section { flex: 1; display: flex; flex-direction: column; gap: 1rem; }
+.main-image {
+    width: 100%; height: 500px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    background: #e4f7dd; color: white; font-size: 5rem;
+}
+.main-image img {
+    width: 100%; height: 100%; object-fit: cover; border-radius: 12px;
+}
+.thumbnail-list { 
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; 
+    margin-top: 1rem;
+}
+.thumbnail-item {
+    width: 100%; height: 100px; border-radius: 8px; cursor: pointer;
+    overflow: hidden; border: 2px solid #e0e0e0; transition: all 0.3s;
+}
+.thumbnail-item:hover { 
+    border-color: #3a5a40; 
+    transform: scale(1.05);
+}
+.thumbnail-item img {
+    width: 100%; height: 100%; object-fit: cover;
+}
+/* ===== 정보 섹션 ===== */
+.info-section { flex: 1; display: flex; flex-direction: column; gap: 1.2rem; }
+.post-status-badge {
+    display: inline-block; padding: 6px 16px; border-radius: 20px;
+    font-size: 0.9rem; font-weight: bold; width: fit-content;
+}
+.post-status-badge.sold {
+    background: #f5f5f5;
+    color: #999;
+    font-size: 1.1rem;
+    padding: 12px 24px;
+}
+.detail-wrapper.sold {
+    background: #f5f5f5;
+}
+
+.detail-wrapper.sold .main-image {
+    position: relative;
+    filter: grayscale(30%);
+}
+
+.detail-wrapper.sold .main-image::after {
+    content: '거래완료';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 1.5rem 3rem;
+    border-radius: 12px;
+    font-size: 2rem;
+    font-weight: bold;
+    z-index: 10;
+}
+
+.detail-wrapper.sold .post-title-detail,
+.detail-wrapper.sold .post-price-detail {
+    color: #999;
+}
+.post-title-detail { font-size: 2rem; font-weight: bold; color: #333; line-height: 1.3; }
+.post-price-detail {
+    font-size: 2.5rem; font-weight: bold; color: #3a5a40;
+    border-bottom: 2px solid #f0f0f0; padding-bottom: 1rem;
+}
+.info-table { display: grid; gap: 1rem; border-bottom: 2px solid #f0f0f0; padding-bottom: 1.5rem; }
+.info-row { display: grid; grid-template-columns: 120px 1fr; gap: 1rem; }
+.info-label { font-weight: 600; color: #666; }
+.info-value { color: #333; }
+/* ===== 판매자 정보 ===== */
+.seller-section {
+    background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-top: 0.5rem;
+}
+.seller-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: #333; }
+.seller-info { display: flex; align-items: center; gap: 1rem; }
+.seller-avatar {
+    width: 60px; height: 60px; border-radius: 50%;
+    background: #e4f7dd; display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 1.8rem;
+}
+.seller-details { flex: 1; }
+.seller-name { font-weight: 600; font-size: 1.1rem; margin-bottom: 0.3rem; }
+.seller-rating { color: #666; font-size: 0.9rem; }
+.seller-rating-stars {
+    display: inline-block;
+    position: relative;
+    font-size: 0.9rem;
+    margin-left: 0.3rem;
+}
+.seller-stars-container {
+    position: relative;
+    display: inline-block;
+    line-height: 1;
+}
+.seller-stars-empty {
+    color: #ddd;
+    position: relative;
+    z-index: 1;
+}
+.seller-stars-filled {
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: #FFD700;
+    overflow: hidden;
+    white-space: nowrap;
+    z-index: 2;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+/* ===== 액션 버튼 ===== */
+.action-buttons {
+    display: grid; grid-template-columns: 1fr 1fr 3fr;
+    gap: 0.8rem; margin-top: 1rem;
+}
+.btn {
+    padding: 15px; border: none; border-radius: 8px; font-size: 1rem;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+}
+.btn-like, .btn-share { background: white; border: 2px solid #e0e0e0; color: #333; }
+.btn-like:hover { border-color: #ff6b6b; color: #ff6b6b; }
+.btn-like.liked { 
+    background: #ffebee; 
+    border-color: #ff6b6b; 
+    color: #ff6b6b; 
+}
+.btn-share:hover { border-color: #3a5a40; color: #3a5a40; }
+.btn-contact {
+    background: #3a5a40; color: white; font-size: 1.1rem;
+}
+.btn-contact:hover {
+    transform: translateY(-2px); box-shadow: 0 5px 15px rgba(58,90,64,0.3);
+}
+/* ===== 글 관리 버튼 (우측 상단 배치) ===== */
+.post-manage-buttons {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+  z-index: 10;
+}
+
+.btn-modify, .btn-delete {
+  padding: 10px 20px;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+/* ✏️ 수정 버튼 — 부드러운 그린톤 */
+.btn-modify {
+  background: #e6f3eb;
+  color: #3a5a40;
+  border: 1px solid #cfe6d3;
+}
+.btn-modify:hover {
+  background: #d3ecdd;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(58,90,64,0.15);
+}
+
+/* 🗑️ 삭제 버튼 — 연한 핑크톤 */
+.btn-delete {
+  background: #fdecea;
+  color: #e74c3c;
+  border: 1px solid #f5c6c3;
+}
+.btn-delete:hover {
+  background: #fbd8d3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(231,76,60,0.15);
+}
+
+/* 클릭 시 눌림 효과 */
+.btn-modify:active, .btn-delete:active {
+  transform: translateY(0);
+}
+
+/* ===== 하단 ===== */
+.detail-bottom {
+    background: white; border-radius: 12px; padding: 2rem;
+    margin-top: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+.post-meta-detail {
+    display: flex; justify-content: flex-end; gap: 1.5rem; color: #999;
+    font-size: 0.95rem; padding-bottom: 1rem; border-bottom: 2px solid #f0f0f0;
+    margin-bottom: 1.5rem;
+}
+.meta-item { display: flex; align-items: center; gap: 0.4rem; }
+.post-content { line-height: 1.8; color: #333; font-size: 1.05rem; white-space: pre-wrap; }
+/* ===== 공유 모달 ===== */
+.share-modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+.share-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  min-width: 280px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.share-content h3 { margin-top: 0; color: #3a5a40; }
+.share-buttons button {
+  margin: 0.5rem;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #3a5a40;
+  color: white;
+  font-weight: 600;
+}
+.close-btn {
+  margin-top: 1rem;
+  background: #999;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+/* ===== 반응형 ===== */
+@media (max-width: 768px) {
+    .detail-wrapper { flex-direction: column; }
+    .action-buttons { grid-template-columns: 1fr; }
+    .post-manage-buttons {
+        top: 10px;
+        right: 10px;
+        gap: 6px;
+    }
+    .btn-modify, .btn-delete {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+    }
+}
+</style>
+</head>
+<body>
+<div th:replace="~{layouts/header.html}"></div>
+
+<div class="container">
+    <!-- ===== 상품 상세 상단 ===== -->
+    <div class="detail-wrapper" th:classappend="${post.status == 'SOLD' ? 'sold' : ''}">
+        <!-- 좌측 이미지 -->
+        <div class="image-section">
+            <div class="main-image">
+			    <!-- 메인 이미지 -->
+			    <img id="mainImage" 
+			         th:if="${post.postImage != null and !post.postImage.isEmpty()}"
+			         th:src="${#strings.contains(post.postImage, ',') ? #strings.substringBefore(post.postImage, ',') : post.postImage}" 
+			         alt="대표이미지">
+			    <span th:if="${post.postImage == null or post.postImage.isEmpty()}">📷</span>
+			</div>
+			
+			<!-- 썸네일 이미지 목록 -->
+			<div class="thumbnail-list" th:if="${post.postImage != null and !post.postImage.isEmpty()}">
+			    <div class="thumbnail-item" 
+			         th:each="imgPath, iterStat : ${#strings.arraySplit(post.postImage, ',')}"
+			         th:data-image="${imgPath}"
+			         onclick="changeMainImage(this.dataset.image)">
+			        <img th:src="${imgPath}" alt="상품 이미지">
+			    </div>
+			</div>
+        </div>
+
+        <!-- 우측 정보 -->
+        <div class="info-section">
+            <div class="post-status-badge"
+                 th:text="${post.status == 'SOLD'} ? '판매완료' : (${post.status == 'RESERVED'} ? '예약중' : '판매중')"
+                 th:style="${post.status == 'SOLD'} ? 'background:#999;' : (${post.status == 'RESERVED'} ? 'background:#ff9800;' : 'background:#d17a3a;')">
+                판매중
+            </div>
+
+            <h1 class="post-title-detail" th:text="${post.title}">상품명</h1>
+            <div class="post-price-detail"
+                 th:text="${#numbers.formatInteger(post.price, 0, 'COMMA') + '원'}">0원</div>
+
+            <div class="info-table">
+                <div class="info-row">
+                    <div class="info-label">카테고리</div>
+                    <div class="info-value" th:text="${post.category}">카테고리명</div>
+                </div>
+                <div class="info-row">
+		            <div class="info-label">거래지역</div>
+			        <div class="info-value" 
+			            th:text="${post.location != null ? post.location : '지역정보 없음'}">
+			            지역정보
+			        </div>
+			    </div>
+                <div class="info-row">
+                    <div class="info-label">거래방법</div>
+                    <div class="info-value" 
+                         th:text="${post.tradeMethod == 'DIRECT' ? '직거래' : (post.tradeMethod == 'DELIVERY' ? '택배거래' : '직거래/택배 모두')}">
+                        직거래
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">상품상태</div>
+                    <div class="info-value" 
+                         th:text="${post.conditionStatus == 'NEW' ? '새상품' : (post.conditionStatus == 'LIKE_NEW' ? '거의 새것' : '중고')}">
+                        중고
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-label">가격흥정</div>
+                    <div class="info-value" 
+                         th:text="${post.negotiable == 'Y' ? '가능' : '불가능'}"
+                         th:style="${post.negotiable == 'Y' ? 'color: #3a5a40; font-weight: bold;' : 'color: #999;'}">
+                        불가능
+                    </div>
+                </div>
+            </div>
+
+            <div class="seller-section">
+                <div class="seller-title">판매자 정보</div>
+                <a id="sellerLink" href="#" onclick="goToSellerPage(); return false;" 
+                   style="text-decoration: none; color: inherit; cursor: pointer;">
+                    <div class="seller-info">
+                        <div class="seller-avatar">
+                            <img th:if="${seller != null and seller.profileImage != null and !seller.profileImage.isEmpty()}"
+                                 th:src="${seller.profileImage}"
+                                 alt="프로필" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                            <span th:if="${seller == null or seller.profileImage == null or seller.profileImage.isEmpty()}">👤</span>
+                        </div>
+                        <div class="seller-details">
+                            <div class="seller-name" 
+                                 th:text="${seller != null ? seller.username + ' (' + seller.email + ')' : '알 수 없음'}">
+                                판매자
+                            </div>
+                            <div class="seller-rating">
+                                <!-- 평점 숫자 -->
+                                <span th:text="${sellerRating != null ? sellerRating : 0.0}">0.0</span>
+                                
+                                <!-- 정밀한 별점 표시 -->
+                                <span class="seller-rating-stars">
+                                    <span class="seller-stars-container">
+                                        <span class="seller-stars-empty">★★★★★</span>
+                                        <span class="seller-stars-filled" 
+                                              th:style="${sellerRating != null ? 'width: ' + (sellerRating * 20) + '%' : 'width: 0%'}">★★★★★</span>
+                                    </span>
+                                </span>
+                                
+                                <!-- 평가 없음 표시 -->
+                                <span th:if="${sellerRating == null || sellerRating == 0}" 
+                                      style="margin-left: 0.5rem; color: #999;">(평가 없음)</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="action-buttons">
+			    <button class="btn btn-like" 
+			            th:data-post-id="${post.postId}"
+			            th:data-wishlist-count="${post.wishlistCount}"
+			            onclick="toggleLike(this)">
+			        <span>❤️ 찜</span>
+			        <span class="wishlist-count" th:text="${post.wishlistCount}">0</span>
+			    </button>
+			
+			    <button class="btn btn-share" 
+			            th:data-post-id="${post.postId}" 
+			            onclick="sharePost(this)">🔗 공유</button>
+			
+			    <button class="btn btn-contact"
+				        th:data-member-id="${post.userId}"
+				        onclick="openChat(this)">
+				    💬 판매자와 채팅하기
+				</button>
+			</div>
+			
+		<!-- 본인 글일 때만 수정/삭제 버튼 표시 (우측 상단) -->
+		<div class="post-manage-buttons" th:if="${session.userId != null and session.userId == post.userId}">
+		    <button class="btn-modify" 
+		            th:if="${post.status != 'SOLD'}"
+		            th:onclick="'location.href=\'/post/postModifyForm/' + ${post.postId} + '\''">
+		        <span>✏️</span> 수정
+		    </button>
+		    <button class="btn-delete" onclick="deletePost()">
+		        <span>🗑️</span> 삭제
+		    </button>
+		</div>
+        </div>
+    </div>
+
+    <!-- ===== 하단 (본문) ===== -->
+    <div class="detail-bottom">
+        <div class="post-meta-detail">
+            <div class="meta-item">👁 조회 <span th:text="${post.hit}">0</span></div>
+            <div class="meta-item">⏰ <span th:text="${#temporals.format(post.createdAt, 'yyyy-MM-dd HH:mm')}">등록일</span></div>
+        </div>
+
+        <div class="post-content" th:text="${post.content}">
+            상품 설명이 표시됩니다.
+        </div>
+    </div>
+</div>
+
+<!-- ===== 공유 모달 ===== -->
+<div id="shareModal" class="share-modal">
+  <div class="share-content">
+    <h3>상품 공유하기</h3>
+    <p>공유할 방법을 선택하세요 👇</p>
+    <div class="share-buttons">
+      <button onclick="copyLink()">📋 링크 복사</button>
+      <button onclick="shareKakao()">🟡 카카오톡</button>
+      <button onclick="shareTwitter()">🐦 트위터</button>
+    </div>
+    <button class="close-btn" onclick="closeShareModal()">닫기 ✖️</button>
+  </div>
+</div>
+
+<div th:replace="~{layouts/footer.html}"></div>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+// 이미지 변경 기능
+function changeMainImage(imagePath) {
+    const mainImage = document.getElementById('mainImage');
+    mainImage.src = imagePath;
+}
+
+// 로그인 여부 체크
+const isLoggedIn = /*[[${session.userId != null}]]*/ false;
+const currentUserId = /*[[${session.userId}]]*/ null;
+const sellerId = /*[[${post.userId}]]*/ null;
+const postId = /*[[${post.postId}]]*/ null;
+const isSeller = isLoggedIn && (currentUserId === sellerId);
+
+// ✅ 찜하기 기능
+function toggleLike(button) {
+    // 로그인 체크
+    if (!isLoggedIn) {
+        if (confirm('로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?')) {
+            // 현재 페이지 URL을 저장하고 로그인 페이지로 이동
+            sessionStorage.setItem('redirectUrl', window.location.href);
+            window.location.href = '/user/loginForm';
+        }
+        return;
+    }
+    
+    // 판매자 본인 체크
+    if (isSeller) {
+        alert('본인이 등록한 상품은 찜할 수 없습니다.');
+        return;
+    }
+    
+    fetch(`/post/${postId}/like`, { method: "POST" })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
+            alert(data.message || '오류가 발생했습니다.');
+            return;
+        }
+        
+        const wishlistCountSpan = button.querySelector('.wishlist-count');
+        
+        if (data.liked) {
+            button.classList.add('liked');
+            wishlistCountSpan.textContent = data.wishlistCount;
+        } else {
+            button.classList.remove('liked');
+            wishlistCountSpan.textContent = data.wishlistCount;
+        }
+    })
+    .catch(err => {
+        console.error("찜 오류:", err);
+        alert('오류가 발생했습니다.');
+    });
+}
+
+// ✅ 공유 기능
+function sharePost(button) {
+    const postId = button.getAttribute("data-post-id");
+    const postUrl = `${window.location.origin}/post/postView/${postId}`;
+
+    if (navigator.share) {
+        navigator.share({
+            title: "오늘득템 상품 공유",
+            text: "이 상품 괜찮아요! 👇",
+            url: postUrl
+        }).catch(err => console.log("공유 취소:", err));
+    } else {
+        openShareModal(postUrl);
+    }
+}
+
+// ✅ 커스텀 공유 모달
+function openShareModal(url) {
+    window.currentShareUrl = url;
+    document.getElementById("shareModal").style.display = "flex";
+}
+function closeShareModal() {
+    document.getElementById("shareModal").style.display = "none";
+}
+function copyLink() {
+    navigator.clipboard.writeText(window.currentShareUrl)
+        .then(() => alert("📋 상품 링크가 복사되었습니다!"))
+        .catch(() => alert("❌ 복사 실패"));
+}
+function shareKakao() {
+    window.open(`https://sharer.kakao.com/talk/friends/picker/link?url=${encodeURIComponent(window.currentShareUrl)}`, '_blank');
+}
+function shareTwitter() {
+    window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.currentShareUrl)}&text=오늘득템 상품!`, '_blank');
+}
+
+// ✅ 채팅 열기
+function openChat(button) {
+    // 로그인 체크
+    if (!isLoggedIn) {
+        if (confirm('로그인이 필요한 서비스입니다. 로그인 페이지로 이동하시겠습니까?')) {
+            sessionStorage.setItem('redirectUrl', window.location.href);
+            window.location.href = '/user/loginForm';
+        }
+        return;
+    }
+    
+    // 판매자 본인이면 이 상품의 채팅 목록으로
+    if (isSeller) {
+        location.href = `/product/chatrooms?postId=${postId}`;
+        return;
+    }
+    
+    // 구매자: 판매자와 채팅 시작
+    const sellerId = button.getAttribute("data-member-id");
+    if (!sellerId) {
+        alert("판매자 정보를 불러올 수 없습니다.");
+        return;
+    }
+    
+    // postId와 sellerId를 파라미터로 전달
+    location.href = `/product/chat?postId=${postId}&sellerId=${sellerId}`;
+}
+
+// 판매자 페이지로 이동
+function goToSellerPage() {
+    // 본인이면 myPage로, 다른 사람이면 userInfo로
+    if (isSeller) {
+        location.href = '/user/myPage';
+    } else {
+        location.href = `/user/userInfo/${sellerId}`;
+    }
+}
+
+// 글삭제 기능
+function deletePost() {
+    if (confirm('정말로 이 게시글을 삭제하시겠습니까?\n삭제된 글은 복구할 수 없습니다.')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/post/postDelete/${postId}`;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+// 페이지 로드 시 처리
+document.addEventListener('DOMContentLoaded', function() {
+    // 판매자 본인이면 버튼 텍스트 변경
+    if (isSeller) {
+        const chatButton = document.querySelector('.btn-contact');
+        if (chatButton) {
+            chatButton.innerHTML = '💬 채팅 확인하기';
+        }
+    }
+    
+    // 이미 찜한 상태면 liked 클래스 추가
+    const isLiked = /*[[${isLiked}]]*/ false;
+    if (isLiked) {
+        const likeButton = document.querySelector('.btn-like');
+        if (likeButton) {
+            likeButton.classList.add('liked');
+        }
+    }
+    
+    // 뒤로가기 버튼에 이전 페이지 정보 적용
+    const urlParams = new URLSearchParams(window.location.search);
+    const refPage = urlParams.get('pg');
+    const refSort = urlParams.get('sort');
+    const refTitle = urlParams.get('title');
+    const refSido = urlParams.get('sido');
+    const refSigungu = urlParams.get('sigungu');
+    const refDong = urlParams.get('dong');
+    const refCategory = urlParams.get('category');
+    const refMinPrice = urlParams.get('minPrice');
+    const refMaxPrice = urlParams.get('maxPrice');
+    
+    if (refPage || refSort || refTitle || refSido || refCategory || refMinPrice) {
+        const backBtn = document.getElementById('backBtn');
+        let backUrl = '/post/postList?';
+        const params = [];
+        
+        if (refPage) params.push('pg=' + refPage);
+        if (refSort) params.push('sort=' + refSort);
+        if (refTitle) params.push('title=' + encodeURIComponent(refTitle));
+        if (refSido) params.push('sido=' + encodeURIComponent(refSido));
+        if (refSigungu) params.push('sigungu=' + encodeURIComponent(refSigungu));
+        if (refDong) params.push('dong=' + encodeURIComponent(refDong));
+        if (refCategory) params.push('category=' + encodeURIComponent(refCategory));
+        if (refMinPrice) params.push('minPrice=' + refMinPrice);
+        if (refMaxPrice) params.push('maxPrice=' + refMaxPrice);
+        
+        backBtn.href = backUrl + params.join('&');
+    }
+});
+/*]]>*/
+</script>
+
+</body>
+</html>
